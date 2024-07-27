@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 
 import { defaultUserConfigs, localStorageKeyLogin } from "~constants"
 
-export const AddNewAccount = ({
+export const AddNewLoginAccountForm = ({
   setNewUserConfigs,
   newUserConfigs,
   setAllUserConfigs,

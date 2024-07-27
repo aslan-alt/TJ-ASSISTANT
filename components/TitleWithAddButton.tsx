@@ -1,6 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons"
 import { Button, Typography } from "antd"
-import styled, { css } from "styled-components"
+import styled from "styled-components"
 
 export const TitleWithAddButton = ({ onAddClick, title }) => {
   return (
@@ -24,7 +24,6 @@ const Container = styled.div`
   grid-auto-flow: column;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid red;
   height: 50px;
 `
 

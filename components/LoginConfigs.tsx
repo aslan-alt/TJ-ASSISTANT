@@ -3,7 +3,8 @@ import { Button, Modal, Tooltip } from "antd"
 import { useEffect, useState } from "react"
 import styled from "styled-components"
 
-import { AddNewAccount } from "~components/AddNewAccount"
+import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
+import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import { defaultUserConfigs, localStorageKeyLogin } from "~constants"
 
@@ -51,25 +52,15 @@ export const LoginConfigs = () => {
 
   return (
     <Container>
-      <Modal
-        title="Delete Account"
-        open={isDeleteModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}>
-        Are you sure you want to delete your account? This action cannot be
-        undone. All your data will be permanently removed. Do you wish to
-        proceed?
-      </Modal>
       <TitleWithAddButton
         title="Users list for login"
         onAddClick={() => {
           setIsAddModalOpen(true)
         }}
       />
-
-      <LoginAccounts>
-        {allUserConfigs?.length ? (
-          allUserConfigs.map((item) => {
+      {allUserConfigs?.length ? (
+        <LoginAccounts>
+          {allUserConfigs.map((item) => {
             return (
               <Tooltip id={item.userId} placement="topLeft" title={item.tag}>
                 <UserItem>
@@ -98,43 +89,51 @@ export const LoginConfigs = () => {
                 </UserItem>
               </Tooltip>
             )
-          })
-        ) : (
-          <ErrorText>
-            No configuration found. Please fill in the form below to configure.
-          </ErrorText>
-        )}
-        {error ? <ErrorText>{error}</ErrorText> : null}
-
-        <Modal
-          title="Add a new account"
-          open={isAddModalOpen}
-          onOk={() => {
-            setIsAddModalOpen(false)
-          }}
-          onCancel={() => {
-            setIsAddModalOpen(false)
-          }}>
-          <AddNewAccount
-            setAllUserConfigs={setAllUserConfigs}
-            setNewUserConfigs={setNewUserConfigs}
-            newUserConfigs={newUserConfigs}
-            setError={setError}
-          />
-        </Modal>
-      </LoginAccounts>
+          })}
+          {error ? <ErrorText>{error}</ErrorText> : null}
+        </LoginAccounts>
+      ) : (
+        <EmptyContent description="No data, please click the button to add an account." />
+      )}
+      <Modal
+        title="Delete Account"
+        open={isDeleteModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}>
+        Are you sure you want to delete your account? This action cannot be
+        undone. All your data will be permanently removed. Do you wish to
+        proceed?
+      </Modal>
+      <Modal
+        title="Add a new account"
+        open={isAddModalOpen}
+        onOk={() => {
+          setIsAddModalOpen(false)
+        }}
+        onCancel={() => {
+          setIsAddModalOpen(false)
+        }}>
+        <AddNewLoginAccountForm
+          setAllUserConfigs={setAllUserConfigs}
+          setNewUserConfigs={setNewUserConfigs}
+          newUserConfigs={newUserConfigs}
+          setError={setError}
+        />
+      </Modal>
     </Container>
   )
 }
 const Container = styled.div`
-  border: 1px solid red;
+  display: grid;
+  grid-auto-flow: row;
+  grid-gap: 8px;
 `
 
 const LoginAccounts = styled.div`
   display: grid;
   grid-auto-flow: row;
   grid-gap: 8px;
-  height: 300px;
+  height: 200px;
   overflow-y: auto;
 `
 
