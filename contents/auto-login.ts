@@ -26,7 +26,7 @@ async function waitForElement(xpath, timeout = 3000) {
   })
 }
 const creatLoginConfigs = (userConfigs: {
-  userName: string
+  email: string
   password: string
 }) => {
   return [
@@ -45,7 +45,7 @@ const creatLoginConfigs = (userConfigs: {
     {
       xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
       event: "input",
-      value: userConfigs.userName
+      value: userConfigs.email
     },
     {
       xpath: '//*[@id="continue"]',

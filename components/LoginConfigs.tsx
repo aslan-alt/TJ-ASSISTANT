@@ -1,7 +1,10 @@
 import { DeleteOutlined } from "@ant-design/icons"
 import { Button, Modal, Tooltip } from "antd"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import styled from "styled-components"
+import { v4 as uuidv4 } from "uuid"
+
+import { useStorage } from "@plasmohq/storage/hook"
 
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { EmptyContent } from "~components/EmptyContent"
@@ -9,9 +12,16 @@ import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import { defaultUserConfigs, localStorageKeyLogin } from "~constants"
 
 export const LoginConfigs = () => {
-  const [allUserConfigs, setAllUserConfigs] = useState([])
+  const [allUserConfigs, setAllUserConfigs] = useStorage(
+    localStorageKeyLogin,
+    []
+  )
+
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
-  const [newUserConfigs, setNewUserConfigs] = useState(defaultUserConfigs)
+  const [newUserConfigs, setNewUserConfigs] = useStorage(
+    "addNewUserConfig",
+    defaultUserConfigs
+  )
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -22,10 +32,6 @@ export const LoginConfigs = () => {
     if (!removeSelectedItem) return
     const filteredConfigs = allUserConfigs.filter(
       (accountConfig) => accountConfig.userId !== removeSelectedItem.userId
-    )
-    localStorage.setItem(
-      localStorageKeyLogin,
-      JSON.stringify(filteredConfigs || "[]")
     )
     setAllUserConfigs(filteredConfigs)
     setIsDeleteModalOpen(false)
@@ -44,12 +50,6 @@ export const LoginConfigs = () => {
     setIsDeleteModalOpen(false)
   }
 
-  useEffect(() => {
-    setAllUserConfigs(
-      JSON.parse(localStorage.getItem(localStorageKeyLogin) || "[]")
-    )
-  }, [])
-
   return (
     <Container>
       <TitleWithAddButton
@@ -62,9 +62,9 @@ export const LoginConfigs = () => {
         <LoginAccounts>
           {allUserConfigs.map((item) => {
             return (
-              <Tooltip id={item.userId} placement="topLeft" title={item.tag}>
+              <Tooltip key={item.userId} placement="topLeft" title={item.tag}>
                 <UserItem>
-                  <UserName>{item.userName}</UserName>
+                  <UserName>{item.email}</UserName>
 
                   <Operations>
                     <Button
@@ -107,17 +107,28 @@ export const LoginConfigs = () => {
       <Modal
         title="Add a new account"
         open={isAddModalOpen}
+        okText="Submit"
         onOk={() => {
+          if (newUserConfigs.password?.length && newUserConfigs.email?.length) {
+            setAllUserConfigs([
+              ...allUserConfigs,
+              {
+                userId: uuidv4(),
+                ...newUserConfigs
+              }
+            ])
+            setNewUserConfigs(defaultUserConfigs)
+          } else {
+            setError("The email and password are required")
+          }
           setIsAddModalOpen(false)
         }}
         onCancel={() => {
           setIsAddModalOpen(false)
         }}>
         <AddNewLoginAccountForm
-          setAllUserConfigs={setAllUserConfigs}
           setNewUserConfigs={setNewUserConfigs}
           newUserConfigs={newUserConfigs}
-          setError={setError}
         />
       </Modal>
     </Container>

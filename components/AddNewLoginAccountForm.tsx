@@ -1,38 +1,24 @@
-import { Button, Input } from "antd"
+import { Button, Input, Select } from "antd"
 import styled from "styled-components"
-import { v4 as uuidv4 } from "uuid"
 
-import { defaultUserConfigs, localStorageKeyLogin } from "~constants"
+import { envOptions } from "~constants"
 
 export const AddNewLoginAccountForm = ({
   setNewUserConfigs,
-  newUserConfigs,
-  setAllUserConfigs,
-  setError
+  newUserConfigs
 }) => {
   return (
     <Container>
       <Input
         type="text"
-        placeholder="Please set a tag to help you distinguish the purpose of this account."
+        placeholder="Please enter Email"
         onChange={(e) =>
           setNewUserConfigs({
             ...newUserConfigs,
-            tag: e.target.value
+            email: e.target.value
           })
         }
-        value={newUserConfigs.tag}
-      />
-      <Input
-        type="text"
-        placeholder="Please enter username"
-        onChange={(e) =>
-          setNewUserConfigs({
-            ...newUserConfigs,
-            userName: e.target.value
-          })
-        }
-        value={newUserConfigs.userName}
+        value={newUserConfigs.email}
       />
       <Input
         type="text"
@@ -47,14 +33,26 @@ export const AddNewLoginAccountForm = ({
       />
       <Input
         type="text"
-        placeholder="Please enter url of website"
+        placeholder="Please set a tag to help you distinguish the purpose of this account."
         onChange={(e) =>
           setNewUserConfigs({
             ...newUserConfigs,
-            webUrl: e.target.value
+            tag: e.target.value
           })
         }
-        value={newUserConfigs.webUrl}
+        value={newUserConfigs.tag}
+      />
+
+      <Select
+        placeholder="Select Env"
+        defaultValue={envOptions[0].value}
+        onChange={(_, env) => {
+          setNewUserConfigs({
+            ...newUserConfigs,
+            env
+          })
+        }}
+        options={envOptions}
       />
       <Input
         type="text"
@@ -67,37 +65,16 @@ export const AddNewLoginAccountForm = ({
         }
         value={newUserConfigs.role}
       />
-      <Button
-        type="primary"
-        onClick={() => {
-          if (
-            newUserConfigs.password?.length &&
-            newUserConfigs.userName?.length &&
-            newUserConfigs?.webUrl
-          ) {
-            const newConfigs = JSON.parse(
-              localStorage.getItem(localStorageKeyLogin) || "[]"
-            ).concat({
-              userId: uuidv4(),
-              ...newUserConfigs
-            })
-            localStorage.setItem(
-              localStorageKeyLogin,
-              JSON.stringify(newConfigs)
-            )
-            setAllUserConfigs(newConfigs)
-            setNewUserConfigs(defaultUserConfigs)
-          } else {
-            setError("The userName password webUrl are required")
-          }
-        }}>
-        Save to localStorage
-      </Button>
     </Container>
   )
 }
+
 const Container = styled.div`
   display: grid;
   grid-auto-flow: row;
   gap: 8px;
+`
+
+const SubmitButton = styled(Button)`
+  margin-top: 32px;
 `
