@@ -45,27 +45,20 @@ export const LoginConfigs = () => {
   }
 
   const handleLogin = async (loginConfigs: typeof newUserConfigs) => {
+    // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
     const currentTab = await getChromeCurrentTab()
-
-    if (isSameOrigin(currentTab.url, loginConfigs.env.value)) {
-      chrome.tabs.sendMessage(currentTab.id, {
-        action: "login",
-        ...loginConfigs
-      })
-    } else {
-      await chrome.tabs.update(currentTab.id, {
-        active: true,
-        url: loginConfigs.env.value
-      })
-      chrome.tabs.onUpdated.addListener(function (tabId, info) {
-        if (info.status === "complete" && tabId === currentTab.id) {
-          chrome.tabs.sendMessage(currentTab.id, {
-            action: "login",
-            ...loginConfigs
-          })
-        }
-      })
-    }
+    await chrome.tabs.update(currentTab.id, {
+      active: true,
+      url: loginConfigs.env.value
+    })
+    chrome.tabs.onUpdated.addListener(function (tabId, info) {
+      if (info.status === "complete" && tabId === currentTab.id) {
+        chrome.tabs.sendMessage(currentTab.id, {
+          action: "login",
+          ...loginConfigs
+        })
+      }
+    })
   }
   const handleCancel = () => {
     setIsDeleteModalOpen(false)

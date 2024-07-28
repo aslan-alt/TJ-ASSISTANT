@@ -1,12 +1,13 @@
 import { xPathMap, type defaultUserConfigs } from "~constants"
-import { isSameOrigin } from "~utils/urlTools"
+
+const loginButton = "/html/body/nav/nav/div[1]/div[2]/button"
 
 async function waitForElement(xpath, timeout = 3000) {
   const interval = 100
   const maxAttempts = timeout / interval
   let attempts = 0
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const intervalId = setInterval(() => {
       attempts++
       const result = document.evaluate(
@@ -23,7 +24,7 @@ async function waitForElement(xpath, timeout = 3000) {
         resolve(element)
       } else if (attempts >= maxAttempts) {
         clearInterval(intervalId)
-        reject(`Element not found for XPath: ${xpath} within ${timeout}ms`)
+        resolve(null)
       }
     }, interval)
   })
@@ -31,7 +32,7 @@ async function waitForElement(xpath, timeout = 3000) {
 const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
   return [
     {
-      xpath: "/html/body/nav/nav/div[1]/div[2]/button", // Sign in
+      xpath: loginButton, // Sign in
       event: "click"
     },
     {
@@ -62,12 +63,27 @@ const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
     }
   ]
 }
+const logoutConfigs = [
+  {
+    xpath: "/html/body/nav/nav/div[1]/div[2]/a",
+    event: "click"
+  },
+  {
+    xpath: '//*[@id="agent-home"]/nav/div/footer/div[2]',
+    event: "click"
+  },
+  {
+    xpath: '//*[@id="agent-home"]/nav/div/footer/div[1]/div[3]',
+    event: "click"
+  }
+]
 
 async function executeTargets(targets) {
   for (const target of targets) {
     const { xpath, event, value } = target
     try {
       const element = await waitForElement(xpath)
+      if (!element) return
       if (event === "click") {
         // @ts-ignore
         element.click()
@@ -85,10 +101,20 @@ async function executeTargets(targets) {
   }
 }
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
-    executeTargets(creatLoginConfigs({ ...request })).then(() => {
-      console.log("全部执行完毕")
-    })
+    const element = await waitForElement(loginButton)
+    console.log("element-------")
+    console.log(element)
+    // @ts-ignore
+    console.log(element?.textContent)
+    // @ts-ignore
+    if (element?.textContent !== "Register/Sign In" || !element) {
+      await executeTargets(logoutConfigs)
+    } else {
+      executeTargets(creatLoginConfigs({ ...request })).then(() => {
+        console.log("全部执行完毕")
+      })
+    }
   }
 })
