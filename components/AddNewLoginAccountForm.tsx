@@ -42,29 +42,6 @@ export const AddNewLoginAccountForm = ({
         }
         value={newUserConfigs.tag}
       />
-
-      <Select
-        placeholder="Select Env"
-        defaultValue={envOptions[0].value}
-        onChange={(_, env) => {
-          setNewUserConfigs({
-            ...newUserConfigs,
-            env
-          })
-        }}
-        options={envOptions}
-      />
-      <Input
-        type="text"
-        placeholder="Please enter role"
-        onChange={(e) =>
-          setNewUserConfigs({
-            ...newUserConfigs,
-            role: e.target.value
-          })
-        }
-        value={newUserConfigs.role}
-      />
     </Container>
   )
 }

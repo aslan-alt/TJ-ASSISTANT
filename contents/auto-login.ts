@@ -1,3 +1,6 @@
+import { xPathMap, type defaultUserConfigs } from "~constants"
+import { isSameOrigin } from "~utils/urlTools"
+
 async function waitForElement(xpath, timeout = 3000) {
   const interval = 100
   const maxAttempts = timeout / interval
@@ -25,17 +28,14 @@ async function waitForElement(xpath, timeout = 3000) {
     }, interval)
   })
 }
-const creatLoginConfigs = (userConfigs: {
-  email: string
-  password: string
-}) => {
+const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
   return [
     {
-      xpath: "/html/body/nav/nav/div[1]/div[2]/button",
+      xpath: "/html/body/nav/nav/div[1]/div[2]/button", // Sign in
       event: "click"
     },
     {
-      xpath: "/html/body/div[4]/div[2]/div[2]/div/button[2]",
+      xpath: xPathMap[userConfigs.role.value], // select role
       event: "click"
     },
     {
@@ -78,7 +78,7 @@ async function executeTargets(targets) {
         // @ts-ignore
         element.dispatchEvent(new Event("input", { bubbles: true }))
       }
-      await new Promise((resolve) => setTimeout(resolve, 500)) // 500ms 延迟以确保事件完成
+      await new Promise((resolve) => setTimeout(resolve, 3000)) // 500ms 延迟以确保事件完成
     } catch (error) {
       console.error(error)
     }
@@ -87,9 +87,6 @@ async function executeTargets(targets) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "login") {
-    const usernameField = document.querySelector("input[name='username']")
-    const passwordField = document.querySelector("input[name='password']")
-
     executeTargets(creatLoginConfigs({ ...request })).then(() => {
       console.log("全部执行完毕")
     })

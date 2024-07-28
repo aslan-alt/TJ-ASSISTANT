@@ -1,16 +1,28 @@
 export const localStorageKeyLogin = "loginConfigs"
 
 export const envOptions = [
-  { value: "https://beta.compass.com/", label: "Beta" },
-  { value: "https://staging.compass.com/", label: "Staging" },
-  { value: "https://gamma.compass.com/", label: "Gamma" },
-  { value: "https://compass.com/", label: "Product" }
+  { value: "https://beta.compass.com", label: "Beta" },
+  { value: "https://staging.compass.com", label: "Staging" },
+  { value: "https://gamma.compass.com", label: "Gamma" },
+  { value: "https://compass.com", label: "Product" }
+]
+export const roleOptions = [
+  { value: "CAG", label: "Compass Agent" },
+  { value: "AG", label: "Buyer or Seller" },
+  { value: "Other", label: "Other" }
 ]
 
 export const defaultUserConfigs = {
+  userId: "",
   tag: "",
   email: "",
   password: "",
   env: envOptions[0],
-  role: "agent" // defaultValue
+  role: roleOptions[1]
+}
+
+export const xPathMap = {
+  [roleOptions[0].value]: "/html/body/div[4]/div[2]/div[2]/div/button[1]",
+  [roleOptions[1].value]: "/html/body/div[4]/div[2]/div[2]/div/button[2]",
+  [roleOptions[2].value]: "/html/body/div[4]/div[2]/div[2]/div/button[3]"
 }

@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons"
-import { Button, Modal, Tooltip } from "antd"
+import { Button, Modal, Select, Tooltip } from "antd"
 import { useState } from "react"
 import styled from "styled-components"
 import { v4 as uuidv4 } from "uuid"
@@ -9,13 +9,19 @@ import { useStorage } from "@plasmohq/storage/hook"
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
-import { defaultUserConfigs, localStorageKeyLogin } from "~constants"
+import {
+  defaultUserConfigs,
+  envOptions,
+  localStorageKeyLogin,
+  roleOptions
+} from "~constants"
+import { getChromeCurrentTab } from "~utils/chromeMethods"
+import { isSameOrigin } from "~utils/urlTools"
 
 export const LoginConfigs = () => {
-  const [allUserConfigs, setAllUserConfigs] = useStorage(
-    localStorageKeyLogin,
-    []
-  )
+  const [userAccountsForLogin, setUserAccountsForLogin] = useStorage<
+    (typeof defaultUserConfigs)[]
+  >(localStorageKeyLogin, [])
 
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
   const [newUserConfigs, setNewUserConfigs] = useStorage(
@@ -30,21 +36,36 @@ export const LoginConfigs = () => {
 
   const handleOk = () => {
     if (!removeSelectedItem) return
-    const filteredConfigs = allUserConfigs.filter(
+    const filteredConfigs = userAccountsForLogin.filter(
       (accountConfig) => accountConfig.userId !== removeSelectedItem.userId
     )
-    setAllUserConfigs(filteredConfigs)
+    setUserAccountsForLogin(filteredConfigs)
     setIsDeleteModalOpen(false)
     setRemoveSelectedItem(null)
   }
 
-  const handleLogin = (loginConfigs: typeof newUserConfigs) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
+  const handleLogin = async (loginConfigs: typeof newUserConfigs) => {
+    const currentTab = await getChromeCurrentTab()
+
+    if (isSameOrigin(currentTab.url, loginConfigs.env.value)) {
+      chrome.tabs.sendMessage(currentTab.id, {
         action: "login",
         ...loginConfigs
       })
-    })
+    } else {
+      await chrome.tabs.update(currentTab.id, {
+        active: true,
+        url: loginConfigs.env.value
+      })
+      chrome.tabs.onUpdated.addListener(function (tabId, info) {
+        if (info.status === "complete" && tabId === currentTab.id) {
+          chrome.tabs.sendMessage(currentTab.id, {
+            action: "login",
+            ...loginConfigs
+          })
+        }
+      })
+    }
   }
   const handleCancel = () => {
     setIsDeleteModalOpen(false)
@@ -58,19 +79,58 @@ export const LoginConfigs = () => {
           setIsAddModalOpen(true)
         }}
       />
-      {allUserConfigs?.length ? (
+
+      {userAccountsForLogin?.length ? (
         <LoginAccounts>
-          {allUserConfigs.map((item) => {
+          {userAccountsForLogin.map((loginAccount) => {
             return (
-              <Tooltip key={item.userId} placement="topLeft" title={item.tag}>
+              <Tooltip
+                key={loginAccount.userId}
+                placement="topLeft"
+                title={`${loginAccount.tag || loginAccount.email}`}>
                 <UserItem>
-                  <UserName>{item.email}</UserName>
+                  <UserName>{loginAccount.email}</UserName>
 
                   <Operations>
+                    <Select
+                      placeholder="Select Env"
+                      value={loginAccount.env.value}
+                      onChange={(_, env) => {
+                        setUserAccountsForLogin(
+                          userAccountsForLogin.map((item) => {
+                            return item.userId === loginAccount.userId
+                              ? {
+                                  ...item,
+                                  env: env as typeof defaultUserConfigs.role
+                                }
+                              : item
+                          })
+                        )
+                      }}
+                      options={envOptions}
+                    />
+                    <Select
+                      placeholder="Select Role"
+                      value={loginAccount?.role?.value}
+                      onChange={(_, role) => {
+                        setUserAccountsForLogin(
+                          userAccountsForLogin.map((item) => {
+                            return item.userId === loginAccount.userId
+                              ? {
+                                  ...item,
+                                  role: role as typeof defaultUserConfigs.role
+                                }
+                              : item
+                          })
+                        )
+                      }}
+                      options={roleOptions}
+                    />
+
                     <Button
                       type="primary"
                       onClick={() => {
-                        handleLogin(item)
+                        handleLogin(loginAccount)
                       }}>
                       Login
                     </Button>
@@ -81,7 +141,7 @@ export const LoginConfigs = () => {
                       size="middle"
                       danger
                       onClick={() => {
-                        setRemoveSelectedItem(item)
+                        setRemoveSelectedItem(loginAccount)
                         setIsDeleteModalOpen(true)
                       }}
                     />
@@ -110,8 +170,8 @@ export const LoginConfigs = () => {
         okText="Submit"
         onOk={() => {
           if (newUserConfigs.password?.length && newUserConfigs.email?.length) {
-            setAllUserConfigs([
-              ...allUserConfigs,
+            setUserAccountsForLogin([
+              ...userAccountsForLogin,
               {
                 userId: uuidv4(),
                 ...newUserConfigs
@@ -142,28 +202,35 @@ const Container = styled.div`
 
 const LoginAccounts = styled.div`
   display: grid;
-  grid-auto-flow: row;
+  grid-template-rows: repeat(auto-fill, minmax(40px, 1fr));
   grid-gap: 8px;
   height: 200px;
   overflow-y: auto;
+  padding: 24px 0;
 `
 
 const UserItem = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 80px 1fr;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  border: 1px solid #00000010;
+  align-content: center;
   &:hover {
     background: #00000015;
   }
 `
 
 const UserName = styled.span`
-  display: grid;
+  display: block;
   align-items: center;
   font-size: 16px;
   overflow: hidden;
+  padding-top: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 80px; /* 根据需要调整宽度 */
 `
 
 const ErrorText = styled.p`
@@ -173,7 +240,7 @@ const ErrorText = styled.p`
 
 const Operations = styled.div`
   display: grid;
-  grid-auto-flow: column;
+  grid-template-columns: 100px 145px 60px auto;
   grid-gap: 8px;
   justify-content: flex-end;
 `
