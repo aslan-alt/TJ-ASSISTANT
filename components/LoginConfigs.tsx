@@ -15,8 +15,6 @@ import {
   localStorageKeyLogin,
   roleOptions
 } from "~constants"
-import { getChromeCurrentTab } from "~utils/chromeMethods"
-import { isSameOrigin } from "~utils/urlTools"
 import {sendToBackground} from "@plasmohq/messaging";
 
 export const LoginConfigs = () => {

@@ -21,6 +21,12 @@ export const defaultUserConfigs = {
   role: roleOptions[1]
 }
 
+export const defaultImpersonateConfigs = {
+  userId: "",
+  tag: "",
+  env: envOptions[0]
+}
+
 export const xPathMap = {
   [roleOptions[0].value]: "/html/body/div[4]/div[2]/div[2]/div/button[1]",
   [roleOptions[1].value]: "/html/body/div[4]/div[2]/div[2]/div/button[2]",

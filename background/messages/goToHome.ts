@@ -15,7 +15,7 @@ const handler: PlasmoMessaging.PortHandler = async (req, res) => {
                 })
                 chrome.webNavigation.onCompleted.removeListener(onCompleted);
             }
-        }, { url: [{ urlMatches: req.body.homeUrl }] });
+        }, { url: [{ urlMatches: req.body.env.value }] });
 
     });
 

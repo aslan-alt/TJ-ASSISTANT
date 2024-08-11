@@ -78,6 +78,10 @@ const logoutConfigs = [
   }
 ]
 
+const impersonateConfigs = [
+
+]
+
 async function executeTargets(targets) {
   for (const target of targets) {
     const { xpath, event, value } = target
@@ -115,5 +119,15 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         sendResponse({status:'全部执行完毕'})
       })
     }
+  }
+  if (request.action === "impersonate") {
+    const element = await waitForElement(   '//*[@id="root"]/div/div/div[2]/div/div[1]/div[6]/button')
+    if(element){
+      // @ts-ignore
+      element.click?.()
+    }else{
+      sendResponse({status:'没找到'})
+    }
+
   }
 })

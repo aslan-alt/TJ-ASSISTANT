@@ -5,7 +5,7 @@ import { envOptions } from "~constants"
 
 export const AddNewLoginAccountForm = ({
   setNewUserConfigs,
-  newUserConfigs
+  newUserConfigs,
 }) => {
   return (
     <Container>
