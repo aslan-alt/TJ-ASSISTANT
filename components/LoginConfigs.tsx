@@ -17,6 +17,7 @@ import {
 } from "~constants"
 import { getChromeCurrentTab } from "~utils/chromeMethods"
 import { isSameOrigin } from "~utils/urlTools"
+import {sendToBackground} from "@plasmohq/messaging";
 
 export const LoginConfigs = () => {
   const [userAccountsForLogin, setUserAccountsForLogin] = useStorage<
@@ -46,19 +47,12 @@ export const LoginConfigs = () => {
 
   const handleLogin = async (loginConfigs: typeof newUserConfigs) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
-    const currentTab = await getChromeCurrentTab()
-    await chrome.tabs.update(currentTab.id, {
-      active: true,
-      url: loginConfigs.env.value
+    const xx = await sendToBackground({
+      name:'goToHome',
+      body:loginConfigs
     })
-    chrome.tabs.onUpdated.addListener(function (tabId, info) {
-      if (info.status === "complete" && tabId === currentTab.id) {
-        chrome.tabs.sendMessage(currentTab.id, {
-          action: "login",
-          ...loginConfigs
-        })
-      }
-    })
+
+
   }
   const handleCancel = () => {
     setIsDeleteModalOpen(false)

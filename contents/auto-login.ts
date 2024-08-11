@@ -82,7 +82,11 @@ async function executeTargets(targets) {
   for (const target of targets) {
     const { xpath, event, value } = target
     try {
-      const element = await waitForElement(xpath)
+      console.log('xpath--------');
+      console.log(xpath);
+      const element = await waitForElement(xpath);
+      console.log('element-----------xxx');
+      console.log(element);
       if (!element) return
       if (event === "click") {
         // @ts-ignore
@@ -104,16 +108,14 @@ async function executeTargets(targets) {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
     const element = await waitForElement(loginButton)
-    console.log("element-------")
-    console.log(element)
     // @ts-ignore
-    console.log(element?.textContent)
-    // @ts-ignore
-    if (element?.textContent !== "Register/Sign In" || !element) {
+    const logInButton = (element?.innerText??'').trim()
+
+    if (logInButton !== "Register/Sign In" || !element) {
       await executeTargets(logoutConfigs)
     } else {
       executeTargets(creatLoginConfigs({ ...request })).then(() => {
-        console.log("全部执行完毕")
+        sendResponse({status:'全部执行完毕'})
       })
     }
   }

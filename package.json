@@ -1,6 +1,6 @@
 {
   "name": "login-assistant",
-  "displayName": "Login assistant",
+  "displayName": "TJ-Assistant",
   "version": "0.0.1",
   "description": "Product Description:",
   "author": "jingsong.xiong@compass.com",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
+    "@plasmohq/messaging": "^0.6.2",
     "@plasmohq/storage": "^1.11.0",
     "antd": "^5.19.3",
     "normalize.css": "^8.0.1",
@@ -30,6 +31,7 @@
     "typescript": "5.3.3"
   },
   "manifest": {
+    "permissions": ["scripting","webNavigation"],
     "host_permissions": [
       "https://*/*"
     ]

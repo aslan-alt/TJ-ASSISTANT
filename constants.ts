@@ -26,3 +26,20 @@ export const xPathMap = {
   [roleOptions[1].value]: "/html/body/div[4]/div[2]/div[2]/div/button[2]",
   [roleOptions[2].value]: "/html/body/div[4]/div[2]/div[2]/div/button[3]"
 }
+
+export const logoutConfigs = [
+  {
+    xpath: "/html/body/div[3]/nav/div/footer/div[2]/a",
+    event: "click"
+  },
+  {
+    xpath: "/html/body/div[3]/nav/div/footer/div[1]/div[3]/a",
+    event: "click"
+  }
+]
+
+export enum BackgroundEvents {
+  logout,
+  login,
+  checkUserStatus
+}
