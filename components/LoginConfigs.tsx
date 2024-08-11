@@ -47,10 +47,16 @@ export const LoginConfigs = () => {
 
   const handleLogin = async (loginConfigs: typeof newUserConfigs) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
-    const xx = await sendToBackground({
+    const homeRes = await sendToBackground({
       name:'goToHome',
       body:loginConfigs
     })
+    if(homeRes?.tabId){
+      chrome.tabs.sendMessage(homeRes.tabId, {
+        action: "login",
+        ...loginConfigs
+      });
+    }
 
 
   }

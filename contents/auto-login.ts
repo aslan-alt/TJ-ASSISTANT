@@ -82,23 +82,20 @@ async function executeTargets(targets) {
   for (const target of targets) {
     const { xpath, event, value } = target
     try {
-      console.log('xpath--------');
-      console.log(xpath);
+
       const element = await waitForElement(xpath);
-      console.log('element-----------xxx');
-      console.log(element);
+
       if (!element) return
       if (event === "click") {
         // @ts-ignore
         element.click()
       } else if (event === "input") {
-        console.log(value)
         // @ts-ignore
         element.value = value
         // @ts-ignore
         element.dispatchEvent(new Event("input", { bubbles: true }))
       }
-      await new Promise((resolve) => setTimeout(resolve, 3000)) // 500ms 延迟以确保事件完成
+      await new Promise((resolve) => setTimeout(resolve, 250)) // 500ms 延迟以确保事件完成
     } catch (error) {
       console.error(error)
     }

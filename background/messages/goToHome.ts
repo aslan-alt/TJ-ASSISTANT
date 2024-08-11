@@ -8,10 +8,11 @@ const handler: PlasmoMessaging.PortHandler = async (req, res) => {
     chrome.tabs.update(tabId, { url: req.body.env.value }).then(result=>{
         chrome.webNavigation.onCompleted.addListener(function onCompleted(details) {
             if (details.tabId === tabId) {
-                chrome.tabs.sendMessage(details.tabId, {
-                    action: "login",
-                    ...req.body
-                });
+
+                res.send({
+                    status: "success",
+                    tabId
+                })
                 chrome.webNavigation.onCompleted.removeListener(onCompleted);
             }
         }, { url: [{ urlMatches: req.body.homeUrl }] });
