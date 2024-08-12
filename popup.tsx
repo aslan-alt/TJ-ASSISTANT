@@ -2,17 +2,42 @@ import styled from "styled-components"
 
 import "./globalStyle.css"
 
-import { Divider } from "antd"
+import {Tabs} from "antd"
 
 import { ImpersonateConfigs } from "~components/ImpersonateConfigs"
 import { LoginConfigs } from "~components/LoginConfigs"
+import {Settings} from "~components/Settings";
+
 
 function IndexPopup() {
+
+
   return (
     <Container>
-      <LoginConfigs />
-      <Divider style={{ margin: 0 }} />
-      <ImpersonateConfigs />
+        <Tabs
+            defaultActiveKey="1"
+            size="small"
+            style={{ marginBottom: 32 }}
+            items={[
+                {
+                    label: `Login`,
+                    key: '0',
+                    children: <LoginConfigs />,
+                },
+                {
+                    label: `Impersonate`,
+                    key: '1',
+                    children:<ImpersonateConfigs />,
+                },
+                {
+                    label: `Settings`,
+                    key: '2',
+                    children: <Settings />,
+                }
+            ]}
+        />
+
+
     </Container>
   )
 }

@@ -18,6 +18,7 @@
     "plasmo": "0.88.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-excel-renderer": "^1.1.0",
     "styled-components": "^6.1.12",
     "uuid": "^10.0.0"
   },
@@ -31,7 +32,10 @@
     "typescript": "5.3.3"
   },
   "manifest": {
-    "permissions": ["scripting","webNavigation"],
+    "permissions": [
+      "scripting",
+      "webNavigation"
+    ],
     "host_permissions": [
       "https://*/*"
     ]
