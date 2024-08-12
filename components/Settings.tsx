@@ -1,6 +1,4 @@
 import { ExcelRenderer } from 'react-excel-renderer';
-import {useStorage} from "@plasmohq/storage/dist/hook";
-import {defaultUserConfigs, LOCAL_STORAGE_KEY_LOGIN} from "~constants";
 import {Table, type TableColumnsType } from "antd";
 import {getAccounts, saveAccounts} from "~utils/indexedDB";
 import {useEffect, useState} from "react";
@@ -8,7 +6,7 @@ import styled from "styled-components";
 
 
 
-type AccountItem = {
+export type AccountItem = {
   email?: string;
   password?: string;
   displayName?: string;

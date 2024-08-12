@@ -1,9 +1,9 @@
 import { DeleteOutlined } from "@ant-design/icons"
 import { Button, Modal, Select, Tooltip } from "antd"
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import styled from "styled-components"
 import { v4 as uuidv4 } from "uuid"
-
+import {isEmpty} from "lodash"
 import { useStorage } from "@plasmohq/storage/hook"
 
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
@@ -12,15 +12,16 @@ import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import {
   defaultUserConfigs,
   envOptions,
-  LOCAL_STORAGE_KEY_LOGIN,
   roleOptions
 } from "~constants"
 import {sendToBackground} from "@plasmohq/messaging";
+import {getAccounts} from "~utils/indexedDB";
+import type {AccountItem} from "~components/Settings";
 
 export const LoginConfigs = () => {
-  const [userAccountsForLogin, setUserAccountsForLogin] = useStorage<
+  const [userAccountsForLogin, setUserAccountsForLogin] = useState<
     (typeof defaultUserConfigs)[]
-  >(LOCAL_STORAGE_KEY_LOGIN, [])
+  >([])
 
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
   const [newUserConfigs, setNewUserConfigs] = useStorage(
@@ -61,6 +62,24 @@ export const LoginConfigs = () => {
   const handleCancel = () => {
     setIsDeleteModalOpen(false)
   }
+
+  useEffect(()=>{
+    getAccounts().then(res=>{
+
+      setUserAccountsForLogin((state)=>{
+        const accountFromExcel = (res as AccountItem[]).filter(item=>!isEmpty(item.password)).map(item=>({
+          email: item.email,
+          password: item.password,
+          tag:`${item?.role??''} (${item.displayName??'N/A'})`,
+          env: envOptions[0] as typeof defaultUserConfigs.env,
+          role: roleOptions[1] as typeof defaultUserConfigs.role,
+          userId: uuidv4(),
+        }));
+
+        return [...state,...accountFromExcel]
+      });
+    })
+  },[])
 
   return (
     <Container>
