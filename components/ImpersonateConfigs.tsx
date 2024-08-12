@@ -1,7 +1,7 @@
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import {Button, Input, Modal, Select, Tooltip} from "antd";
-import {defaultImpersonateConfigs, defaultUserConfigs, envOptions, localStorageKeyLogin, roleOptions} from "~constants";
+import {defaultImpersonateConfigs, defaultUserConfigs, envOptions, LOCAL_STORAGE_KEY_IMPERSONATE, roleOptions} from "~constants";
 import {DeleteOutlined} from "@ant-design/icons";
 import {AddNewLoginAccountForm} from "~components/AddNewLoginAccountForm";
 import styled from "styled-components";
@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from "uuid"
 export const ImpersonateConfigs = () => {
     const [userAccountsForLogin, setUserAccountsForLogin] = useStorage<
         (typeof defaultImpersonateConfigs)[]
-    >(localStorageKeyLogin, [])
+    >(LOCAL_STORAGE_KEY_IMPERSONATE, [])
 
     const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
     const [newUserConfigs, setNewUserConfigs] = useStorage(
@@ -50,7 +50,9 @@ export const ImpersonateConfigs = () => {
     }
   return (
     <Container>
-        <TitleWithAddButton title="Impersonate" onAddClick={() => {}} />
+        <TitleWithAddButton title="Impersonate" onAddClick={() => {
+            setIsAddModalOpen(true)
+        }} />
 
         {userAccountsForLogin?.length ? (
             <LoginAccounts>
@@ -141,7 +143,7 @@ export const ImpersonateConfigs = () => {
             <Form>
                 <Input
                     type="text"
-                    placeholder="Please enter Email"
+                    placeholder="Please enter userId"
                     onChange={(e) =>
                         setNewUserConfigs({
                             ...newUserConfigs,

@@ -12,7 +12,7 @@ import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import {
   defaultUserConfigs,
   envOptions,
-  localStorageKeyLogin,
+  LOCAL_STORAGE_KEY_LOGIN,
   roleOptions
 } from "~constants"
 import {sendToBackground} from "@plasmohq/messaging";
@@ -20,7 +20,7 @@ import {sendToBackground} from "@plasmohq/messaging";
 export const LoginConfigs = () => {
   const [userAccountsForLogin, setUserAccountsForLogin] = useStorage<
     (typeof defaultUserConfigs)[]
-  >(localStorageKeyLogin, [])
+  >(LOCAL_STORAGE_KEY_LOGIN, [])
 
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
   const [newUserConfigs, setNewUserConfigs] = useStorage(

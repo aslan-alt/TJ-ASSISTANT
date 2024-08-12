@@ -1,4 +1,7 @@
-export const localStorageKeyLogin = "loginConfigs"
+export const LOCAL_STORAGE_KEY_LOGIN = "LOGIN_CONFIGS";
+export const LOCAL_STORAGE_KEY_IMPERSONATE = "IMPERSONATE_CONFIGS";
+
+
 
 export const envOptions = [
   { value: "https://beta.compass.com", label: "Beta" },
