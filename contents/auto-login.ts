@@ -1,4 +1,4 @@
-import { xPathMap, type defaultUserConfigs } from "~constants"
+import {type defaultUserConfigs, xPathForLoginWays, roleOptions} from "~constants"
 
 const loginButton = "/html/body/nav/nav/div[1]/div[2]/button"
 
@@ -30,13 +30,35 @@ async function waitForElement(xpath, timeout = 3000) {
   })
 }
 const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
+  if(userConfigs.role.value === roleOptions[0].value){
+   return [
+      {
+        xpath: loginButton, // Sign in
+        event: "click"
+      },
+      {
+        xpath: xPathForLoginWays[roleOptions[0].value], // select role
+        event: "click"
+      },
+     {
+       xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
+       event: "input",
+       value: userConfigs.email
+     },
+     {
+       xpath: '//*[@id="continue"]',
+       event: "click"
+     },
+    ]
+  }
+
   return [
     {
       xpath: loginButton, // Sign in
       event: "click"
     },
     {
-      xpath: xPathMap[userConfigs.role.value], // select role
+      xpath: xPathForLoginWays[userConfigs.role.value], // select role
       event: "click"
     },
     {

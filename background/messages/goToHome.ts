@@ -13,7 +13,10 @@ const handler: PlasmoMessaging.PortHandler = async (req, res) => {
                     status: "success",
                     tabId
                 })
-                chrome.webNavigation.onCompleted.removeListener(onCompleted);
+               const timerId = setTimeout(()=>{
+                   chrome.webNavigation.onCompleted.removeListener(onCompleted);
+                   clearTimeout(timerId)
+               },5000)
             }
         }, { url: [{ urlMatches: req.body.env.value }] });
 

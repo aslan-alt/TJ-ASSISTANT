@@ -164,8 +164,8 @@ export const LoginConfigs = () => {
             setUserAccountsForLogin([
               ...userAccountsForLogin,
               {
+                ...newUserConfigs,
                 userId: uuidv4(),
-                ...newUserConfigs
               }
             ])
             setNewUserConfigs(defaultUserConfigs)

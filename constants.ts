@@ -27,7 +27,7 @@ export const defaultImpersonateConfigs = {
   env: envOptions[0]
 }
 
-export const xPathMap = {
+export const xPathForLoginWays = {
   [roleOptions[0].value]: "/html/body/div[4]/div[2]/div[2]/div/button[1]",
   [roleOptions[1].value]: "/html/body/div[4]/div[2]/div[2]/div/button[2]",
   [roleOptions[2].value]: "/html/body/div[4]/div[2]/div[2]/div/button[3]"
