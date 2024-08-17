@@ -20,7 +20,7 @@ export const Settings = ()=> {
                 console.log(err);
             } else {
 
-                const accountsFromExcel = resp.rows.slice(1).filter((row) => {
+                const accountsFromExcel:AccountItem[] = resp.rows.slice(1).filter((row) => {
                     return row?.[0]
                 }).map(item=>({
                     email: item?.[0],

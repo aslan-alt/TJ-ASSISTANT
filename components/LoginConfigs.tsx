@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons"
-import { Button, Modal, Select, Tooltip } from "antd"
+import {Button, Input, Modal, Select, Tooltip,Space} from "antd"
 import { useState} from "react"
 import styled from "styled-components"
 import { useStorage } from "@plasmohq/storage/hook"
@@ -14,10 +14,24 @@ import {
     roleOptions
 } from "~constants"
 import {sendToBackground} from "@plasmohq/messaging";
-
 import {useGetLoginAccount} from "~hooks/useGetLoginAccount";
 
+const searchTypes = [
+    { value: "tag", label: "Search by tag" },
+    { value: "email", label: "Search by email" },
+    { value: "notes", label: "Search by notes" }
+]
+
+
 export const LoginConfigs = () => {
+    const [searchValue, setSearchValue] = useStorage(
+        "searchValue",
+        ''
+    )
+    const [searchType, setSearchType] = useStorage(
+        "searchType",
+        searchTypes[0]
+    )
   const [newAccountItem, setNewUserConfigs] = useStorage(
       "addNewUserConfig",
       defaultUserConfigs
@@ -25,7 +39,7 @@ export const LoginConfigs = () => {
 
   const {loginAccounts,updateLoginAccount} = useGetLoginAccount()
 
-  const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
+    const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -52,6 +66,10 @@ export const LoginConfigs = () => {
     setIsDeleteModalOpen(false)
   }
 
+    const filteredAccounts = loginAccounts?.filter(account =>
+        account?.[searchType?.value??'']?.toLowerCase()?.includes?.(searchValue.toLowerCase())
+    )??[];
+
   return (
     <Container>
       <TitleWithAddButton
@@ -62,77 +80,92 @@ export const LoginConfigs = () => {
       />
 
       {loginAccounts?.length ? (
-        <LoginAccounts>
-          {loginAccounts.map((currentAccount) => {
-            return (
-              <Tooltip
-                key={currentAccount.email}
-                placement="topLeft"
-                title={`${currentAccount.tag || currentAccount.email}`}>
-                <UserItem>
-                  <UserName>{currentAccount.email}</UserName>
+        <>
+            <Space.Compact>
+                <SearchSelect defaultValue={searchType.value} options={searchTypes} onChange={(_,nweSearchType)=>{
+                    setSearchType(nweSearchType as typeof searchTypes[0])
+                }} />
+                <Input
+                    placeholder="Search by email"
+                    size="large"
+                    allowClear
+                        disabled={(loginAccounts?.length??0)<1}
+                        onChange={(e) => {
+                            setSearchValue(e.target.value)
+                        }} />
+            </Space.Compact>
+            <LoginAccounts>
+                {filteredAccounts.map((currentAccount) => {
+                    return (
+                        <Tooltip
+                            key={currentAccount.email}
+                            placement="topLeft"
+                            title={`${currentAccount.tag || currentAccount.email}`}>
+                            <UserItem>
+                                <UserName>{currentAccount.email}</UserName>
 
-                  <Operations>
-                    <Select
-                      placeholder="Select Env"
-                      value={currentAccount?.env?.value}
-                      onChange={(_, env) => {
-                          updateLoginAccount(
-                              loginAccounts?.map((item) => {
-                            return item.email === currentAccount.email
-                              ? {
-                                  ...item,
-                                    env: env as typeof envOptions[0]
-                                }
-                              : item
-                          })
-                        )
-                      }}
-                      options={envOptions}
-                    />
-                    <Select
-                      placeholder="Select Role"
-                      value={currentAccount?.role?.value}
-                      onChange={(_, role) => {
-                          updateLoginAccount(
-                          loginAccounts.map((item) => {
-                            return item.email === currentAccount.email
-                              ? {
-                                  ...item,
-                                  role: role as typeof defaultUserConfigs.role
-                                }
-                              : item
-                          })
-                        )
-                      }}
-                      options={roleOptions}
-                    />
+                                <Operations>
+                                    <Select
+                                        placeholder="Select Env"
+                                        value={currentAccount?.env?.value}
+                                        onChange={(_, env) => {
+                                            updateLoginAccount(
+                                                loginAccounts?.map((item) => {
+                                                    return item.email === currentAccount.email
+                                                        ? {
+                                                            ...item,
+                                                            env: env as typeof envOptions[0]
+                                                        }
+                                                        : item
+                                                })
+                                            )
+                                        }}
+                                        options={envOptions}
+                                    />
+                                    <Select
+                                        placeholder="Select Role"
+                                        value={currentAccount?.role?.value}
+                                        onChange={(_, role) => {
+                                            updateLoginAccount(
+                                                loginAccounts.map((item) => {
+                                                    return item.email === currentAccount.email
+                                                        ? {
+                                                            ...item,
+                                                            role: role as typeof defaultUserConfigs.role
+                                                        }
+                                                        : item
+                                                })
+                                            )
+                                        }}
+                                        options={roleOptions}
+                                    />
 
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                          handleLogin(currentAccount)
-                      }}>
-                      Login
-                    </Button>
-                    <Button
-                      type="primary"
-                      shape="circle"
-                      icon={<DeleteOutlined />}
-                      size="middle"
-                      danger
-                      onClick={() => {
-                        setRemoveSelectedItem(currentAccount)
-                        setIsDeleteModalOpen(true)
-                      }}
-                    />
-                  </Operations>
-                </UserItem>
-              </Tooltip>
-            )
-          })}
-          {error ? <ErrorText>{error}</ErrorText> : null}
-        </LoginAccounts>
+                                    <Button
+                                        type="primary"
+                                        onClick={() => {
+                                            handleLogin(currentAccount)
+                                        }}>
+                                        Login
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        shape="circle"
+                                        icon={<DeleteOutlined />}
+                                        size="middle"
+                                        danger
+                                        onClick={() => {
+                                            setRemoveSelectedItem(currentAccount)
+                                            setIsDeleteModalOpen(true)
+                                        }}
+                                    />
+                                </Operations>
+                            </UserItem>
+                        </Tooltip>
+                    )
+                })}
+                {error ? <ErrorText>{error}</ErrorText> : null}
+            </LoginAccounts>
+        </>
       ) : (
         <EmptyContent description="No data, please click the button to add an account." />
       )}
@@ -187,9 +220,9 @@ const LoginAccounts = styled.div`
   display: grid;
   grid-template-rows: repeat(auto-fill, minmax(40px, 1fr));
   grid-gap: 8px;
-  height: 200px;
+  height: 300px;
   overflow-y: auto;
-  padding: 24px 0;
+  
 `
 
 const UserItem = styled.div`
@@ -204,6 +237,9 @@ const UserItem = styled.div`
     background: #00000015;
   }
 `
+const SearchSelect = styled(Select)`
+ height: 100%;
+`;
 
 const UserName = styled.span`
   display: block;
