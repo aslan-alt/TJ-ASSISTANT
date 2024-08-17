@@ -1,7 +1,6 @@
 import { ExcelRenderer } from 'react-excel-renderer';
 import {Button, Table, type TableColumnsType} from "antd";
-import {useDeleteAccount, useDeleteAllAccounts, useSaveAccounts} from "~utils/indexedDB";
-import {useEffect, useState} from "react";
+import {useDeleteAllAccounts, useSaveAccounts} from "~utils/indexedDB";
 import styled from "styled-components";
 import {DeleteOutlined} from "@ant-design/icons";
 
