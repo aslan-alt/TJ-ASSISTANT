@@ -1,7 +1,16 @@
 export const LOCAL_STORAGE_KEY_LOGIN = "LOGIN_CONFIGS";
 export const LOCAL_STORAGE_KEY_IMPERSONATE = "IMPERSONATE_CONFIGS";
 
-
+export type AccountItem = {
+  TeamId?: string;
+  displayName?: string;
+  email: string;
+  notes?: string;
+  password?: string;
+  role?: string;
+  teamName?: string;
+  userId?: string;
+}
 
 export const envOptions = [
   { value: "https://beta.compass.com", label: "Beta" },
@@ -17,7 +26,6 @@ export const roleOptions = [
 
 
 export const defaultUserConfigs = {
-  userId: "",
   tag: "",
   email: "",
   password: "",

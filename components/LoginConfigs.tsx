@@ -15,36 +15,28 @@ import {
   roleOptions
 } from "~constants"
 import {sendToBackground} from "@plasmohq/messaging";
-import {getAccounts} from "~utils/indexedDB";
+import {useGetAccounts} from "~utils/indexedDB";
 import type {AccountItem} from "~components/Settings";
 
 export const LoginConfigs = () => {
+  const [newAccountItem, setNewUserConfigs] = useStorage(
+      "addNewUserConfig",
+      defaultUserConfigs
+  )
+
   const [userAccountsForLogin, setUserAccountsForLogin] = useState<
     (typeof defaultUserConfigs)[]
   >([])
 
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
-  const [newUserConfigs, setNewUserConfigs] = useStorage(
-    "addNewUserConfig",
-    defaultUserConfigs
-  )
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   const [error, setError] = useState<string | null>(null)
 
-  const handleOk = () => {
-    if (!removeSelectedItem) return
-    const filteredConfigs = userAccountsForLogin.filter(
-      (accountConfig) => accountConfig.userId !== removeSelectedItem.userId
-    )
-    setUserAccountsForLogin(filteredConfigs)
-    setIsDeleteModalOpen(false)
-    setRemoveSelectedItem(null)
-  }
 
-  const handleLogin = async (loginConfigs: typeof newUserConfigs) => {
+  const handleLogin = async (loginConfigs: typeof newAccountItem) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
     const homeRes = await sendToBackground({
       name:'goToHome',
@@ -63,23 +55,22 @@ export const LoginConfigs = () => {
     setIsDeleteModalOpen(false)
   }
 
-  useEffect(()=>{
-    getAccounts().then(res=>{
-
-      setUserAccountsForLogin((state)=>{
-        const accountFromExcel = (res as AccountItem[]).filter(item=>!isEmpty(item.password)).map(item=>({
-          email: item.email,
-          password: item.password,
-          tag:`${item?.role??''} (${item.displayName??'N/A'})`,
-          env: envOptions[0] as typeof defaultUserConfigs.env,
-          role: roleOptions[1] as typeof defaultUserConfigs.role,
-          userId: uuidv4(),
-        }));
-
-        return [...state,...accountFromExcel]
-      });
-    })
-  },[])
+  // useEffect(()=>{
+  //   getAccounts().then(res=>{
+  //
+  //     setUserAccountsForLogin((state)=>{
+  //       const accountFromExcel = (res as AccountItem[]).filter(item=>!isEmpty(item.password)).map(item=>({
+  //         email: item.email,
+  //         password: item.password,
+  //         tag:`${item?.role??''} (${item.displayName??'N/A'})`,
+  //         env: envOptions[0] as typeof defaultUserConfigs.env,
+  //         role: roleOptions[1] as typeof defaultUserConfigs.role,
+  //       }));
+  //
+  //       return [...state,...accountFromExcel]
+  //     });
+  //   })
+  // },[])
 
   return (
     <Container>
@@ -95,7 +86,7 @@ export const LoginConfigs = () => {
           {userAccountsForLogin.map((loginAccount) => {
             return (
               <Tooltip
-                key={loginAccount.userId}
+                key={loginAccount.email}
                 placement="topLeft"
                 title={`${loginAccount.tag || loginAccount.email}`}>
                 <UserItem>
@@ -108,7 +99,7 @@ export const LoginConfigs = () => {
                       onChange={(_, env) => {
                         setUserAccountsForLogin(
                           userAccountsForLogin.map((item) => {
-                            return item.userId === loginAccount.userId
+                            return item.email === loginAccount.email
                               ? {
                                   ...item,
                                   env: env as typeof defaultUserConfigs.role
@@ -125,7 +116,7 @@ export const LoginConfigs = () => {
                       onChange={(_, role) => {
                         setUserAccountsForLogin(
                           userAccountsForLogin.map((item) => {
-                            return item.userId === loginAccount.userId
+                            return item.email === loginAccount.email
                               ? {
                                   ...item,
                                   role: role as typeof defaultUserConfigs.role
@@ -168,7 +159,15 @@ export const LoginConfigs = () => {
       <Modal
         title="Delete Account"
         open={isDeleteModalOpen}
-        onOk={handleOk}
+        onOk={() => {
+          if (!removeSelectedItem) return
+          const filteredConfigs = userAccountsForLogin.filter(
+              (accountConfig) => accountConfig.email !== removeSelectedItem.email
+          )
+          setUserAccountsForLogin(filteredConfigs)
+          setIsDeleteModalOpen(false)
+          setRemoveSelectedItem(null)
+        }}
         onCancel={handleCancel}>
         Are you sure you want to delete your account? This action cannot be
         undone. All your data will be permanently removed. Do you wish to
@@ -179,14 +178,8 @@ export const LoginConfigs = () => {
         open={isAddModalOpen}
         okText="Submit"
         onOk={() => {
-          if (newUserConfigs.password?.length && newUserConfigs.email?.length) {
-            setUserAccountsForLogin([
-              ...userAccountsForLogin,
-              {
-                ...newUserConfigs,
-                userId: uuidv4(),
-              }
-            ])
+          if (newAccountItem.password?.length && newAccountItem.email?.length) {
+            setUserAccountsForLogin([...userAccountsForLogin, newAccountItem])
             setNewUserConfigs(defaultUserConfigs)
           } else {
             setError("The email and password are required")
@@ -198,7 +191,7 @@ export const LoginConfigs = () => {
         }}>
         <AddNewLoginAccountForm
           setNewUserConfigs={setNewUserConfigs}
-          newUserConfigs={newUserConfigs}
+          newUserConfigs={newAccountItem}
         />
       </Modal>
     </Container>

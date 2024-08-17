@@ -13,6 +13,7 @@
     "@ant-design/icons": "^5.4.0",
     "@plasmohq/messaging": "^0.6.2",
     "@plasmohq/storage": "^1.11.0",
+    "@tanstack/react-query": "^5.51.23",
     "antd": "^5.19.3",
     "lodash": "^4.17.21",
     "normalize.css": "^8.0.1",
