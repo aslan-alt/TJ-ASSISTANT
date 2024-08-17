@@ -1,22 +1,21 @@
 import { DeleteOutlined } from "@ant-design/icons"
 import { Button, Modal, Select, Tooltip } from "antd"
-import {useEffect, useState} from "react"
+import { useState} from "react"
 import styled from "styled-components"
-import { v4 as uuidv4 } from "uuid"
-import {isEmpty} from "lodash"
 import { useStorage } from "@plasmohq/storage/hook"
 
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import {
-  defaultUserConfigs,
-  envOptions,
-  roleOptions
+    type AccountItem,
+    defaultUserConfigs,
+    envOptions,
+    roleOptions
 } from "~constants"
 import {sendToBackground} from "@plasmohq/messaging";
-import {useGetAccounts} from "~utils/indexedDB";
-import type {AccountItem} from "~components/Settings";
+
+import {useGetLoginAccount} from "~hooks/useGetLoginAccount";
 
 export const LoginConfigs = () => {
   const [newAccountItem, setNewUserConfigs] = useStorage(
@@ -24,9 +23,7 @@ export const LoginConfigs = () => {
       defaultUserConfigs
   )
 
-  const [userAccountsForLogin, setUserAccountsForLogin] = useState<
-    (typeof defaultUserConfigs)[]
-  >([])
+  const {loginAccounts,updateLoginAccount} = useGetLoginAccount()
 
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
 
@@ -36,7 +33,7 @@ export const LoginConfigs = () => {
   const [error, setError] = useState<string | null>(null)
 
 
-  const handleLogin = async (loginConfigs: typeof newAccountItem) => {
+  const handleLogin = async (loginConfigs: AccountItem) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
     const homeRes = await sendToBackground({
       name:'goToHome',
@@ -55,23 +52,6 @@ export const LoginConfigs = () => {
     setIsDeleteModalOpen(false)
   }
 
-  // useEffect(()=>{
-  //   getAccounts().then(res=>{
-  //
-  //     setUserAccountsForLogin((state)=>{
-  //       const accountFromExcel = (res as AccountItem[]).filter(item=>!isEmpty(item.password)).map(item=>({
-  //         email: item.email,
-  //         password: item.password,
-  //         tag:`${item?.role??''} (${item.displayName??'N/A'})`,
-  //         env: envOptions[0] as typeof defaultUserConfigs.env,
-  //         role: roleOptions[1] as typeof defaultUserConfigs.role,
-  //       }));
-  //
-  //       return [...state,...accountFromExcel]
-  //     });
-  //   })
-  // },[])
-
   return (
     <Container>
       <TitleWithAddButton
@@ -81,28 +61,28 @@ export const LoginConfigs = () => {
         }}
       />
 
-      {userAccountsForLogin?.length ? (
+      {loginAccounts?.length ? (
         <LoginAccounts>
-          {userAccountsForLogin.map((loginAccount) => {
+          {loginAccounts.map((currentAccount) => {
             return (
               <Tooltip
-                key={loginAccount.email}
+                key={currentAccount.email}
                 placement="topLeft"
-                title={`${loginAccount.tag || loginAccount.email}`}>
+                title={`${currentAccount.tag || currentAccount.email}`}>
                 <UserItem>
-                  <UserName>{loginAccount.email}</UserName>
+                  <UserName>{currentAccount.email}</UserName>
 
                   <Operations>
                     <Select
                       placeholder="Select Env"
-                      value={loginAccount.env.value}
+                      value={currentAccount?.env?.value}
                       onChange={(_, env) => {
-                        setUserAccountsForLogin(
-                          userAccountsForLogin.map((item) => {
-                            return item.email === loginAccount.email
+                          updateLoginAccount(
+                              loginAccounts?.map((item) => {
+                            return item.email === currentAccount.email
                               ? {
                                   ...item,
-                                  env: env as typeof defaultUserConfigs.role
+                                    env: env as typeof envOptions[0]
                                 }
                               : item
                           })
@@ -112,11 +92,11 @@ export const LoginConfigs = () => {
                     />
                     <Select
                       placeholder="Select Role"
-                      value={loginAccount?.role?.value}
+                      value={currentAccount?.role?.value}
                       onChange={(_, role) => {
-                        setUserAccountsForLogin(
-                          userAccountsForLogin.map((item) => {
-                            return item.email === loginAccount.email
+                          updateLoginAccount(
+                          loginAccounts.map((item) => {
+                            return item.email === currentAccount.email
                               ? {
                                   ...item,
                                   role: role as typeof defaultUserConfigs.role
@@ -131,7 +111,7 @@ export const LoginConfigs = () => {
                     <Button
                       type="primary"
                       onClick={() => {
-                        handleLogin(loginAccount)
+                          handleLogin(currentAccount)
                       }}>
                       Login
                     </Button>
@@ -142,7 +122,7 @@ export const LoginConfigs = () => {
                       size="middle"
                       danger
                       onClick={() => {
-                        setRemoveSelectedItem(loginAccount)
+                        setRemoveSelectedItem(currentAccount)
                         setIsDeleteModalOpen(true)
                       }}
                     />
@@ -161,10 +141,10 @@ export const LoginConfigs = () => {
         open={isDeleteModalOpen}
         onOk={() => {
           if (!removeSelectedItem) return
-          const filteredConfigs = userAccountsForLogin.filter(
+          const filteredConfigs = loginAccounts.filter(
               (accountConfig) => accountConfig.email !== removeSelectedItem.email
           )
-          setUserAccountsForLogin(filteredConfigs)
+          updateLoginAccount(filteredConfigs)
           setIsDeleteModalOpen(false)
           setRemoveSelectedItem(null)
         }}
@@ -179,7 +159,7 @@ export const LoginConfigs = () => {
         okText="Submit"
         onOk={() => {
           if (newAccountItem.password?.length && newAccountItem.email?.length) {
-            setUserAccountsForLogin([...userAccountsForLogin, newAccountItem])
+            updateLoginAccount([...loginAccounts, newAccountItem])
             setNewUserConfigs(defaultUserConfigs)
           } else {
             setError("The email and password are required")

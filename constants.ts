@@ -1,15 +1,19 @@
 export const LOCAL_STORAGE_KEY_LOGIN = "LOGIN_CONFIGS";
 export const LOCAL_STORAGE_KEY_IMPERSONATE = "IMPERSONATE_CONFIGS";
 
+
 export type AccountItem = {
   TeamId?: string;
   displayName?: string;
   email: string;
   notes?: string;
   password?: string;
-  role?: string;
+  role?: typeof roleOptions[1];
   teamName?: string;
   userId?: string;
+  env?:typeof envOptions[0];
+  tag?:string;
+  createdAt?:string;
 }
 
 export const envOptions = [

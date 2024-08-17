@@ -1,24 +1,15 @@
 import { ExcelRenderer } from 'react-excel-renderer';
 import {Button, Table, type TableColumnsType} from "antd";
-import {useDeleteAllAccounts, useSaveAccounts} from "~utils/indexedDB";
+import {useDeleteAllAccounts, useGetAccounts, useSaveAccounts} from "~utils/indexedDB";
 import styled from "styled-components";
 import {DeleteOutlined} from "@ant-design/icons";
+import type {AccountItem} from "~constants";
 
 
-
-export type AccountItem = {
-  email?: string;
-  password?: string;
-  displayName?: string;
-  role?: string;
-  userId?: string;
-  teamName?: string;
-  TeamId?: string;
-  notes?:string
-}
 
 export const Settings = ()=> {
-    const {data:accounts,mutate} = useSaveAccounts()
+    const {data:accounts,...rest} =useGetAccounts()
+    const {mutate} = useSaveAccounts()
     const {mutate:deleteAllAccounts} = useDeleteAllAccounts()
 
     const handleFile = (event) => {
@@ -51,7 +42,7 @@ export const Settings = ()=> {
     };
 
 
-    const columns: TableColumnsType<AccountItem> = [
+    const columns: TableColumnsType<Partial<AccountItem>> = [
         { title: 'Email', dataIndex: 'email', key: 'email' },
         { title: 'Role', dataIndex: 'role', key: 'role' },
         {
