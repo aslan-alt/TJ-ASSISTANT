@@ -1,7 +1,7 @@
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import {Button, Input, Modal, Select, Tooltip} from "antd";
-import {type AccountItem, defaultUserConfigs, envOptions, LOCAL_STORAGE_KEY_IMPERSONATE, roleOptions} from "~constants";
+import {type AccountItem, defaultUserConfigs, envOptions} from "~constants";
 import {DeleteOutlined} from "@ant-design/icons";
 import styled from "styled-components";
 import {useStorage} from "@plasmohq/storage/dist/hook";
