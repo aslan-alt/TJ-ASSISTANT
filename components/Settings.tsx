@@ -57,7 +57,7 @@ export const Settings = () => {
               TeamId: item?.[6],
               notes: item?.[7],
               env: envOptions[0],
-              role: roleOptions[0],
+              role: roleOptions[1],
               createdAt: new Date().toISOString()
             }))
           try {
