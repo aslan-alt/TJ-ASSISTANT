@@ -1,183 +1,205 @@
+import { DeleteOutlined } from "@ant-design/icons"
+import { Button, Input, Modal, Select, Tooltip } from "antd"
+import { useState } from "react"
+import styled from "styled-components"
+
+import { sendToBackground } from "@plasmohq/messaging"
+import { useStorage } from "@plasmohq/storage/dist/hook"
+
 import { EmptyContent } from "~components/EmptyContent"
+import { SearchInput } from "~components/SearchInput"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
-import {Button, Input, Modal, Select, Tooltip} from "antd";
-import {type AccountItem, defaultUserConfigs, envOptions} from "~constants";
-import {DeleteOutlined} from "@ant-design/icons";
-import styled from "styled-components";
-import {useStorage} from "@plasmohq/storage/dist/hook";
-import {useState} from "react";
-import {sendToBackground} from "@plasmohq/messaging";
-import {useImpersonateAccount} from "~hooks/useImpersonateAccount";
+import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
+import { useImpersonateAccount } from "~hooks/useImpersonateAccount"
+import { StoreNames } from "~utils/indexedDB"
 
 export const ImpersonateConfigs = () => {
-    const [newUserConfigs, setNewUserConfigs] = useStorage(
-        "impersonateConfigs",
-        defaultUserConfigs
-    )
+  const [newUserConfigs, setNewUserConfigs] = useStorage(
+    "impersonateConfigs",
+    defaultUserConfigs
+  )
 
-    const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
+  const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
 
-    const {impersonateAccounts,updateImpersonateAccounts} = useImpersonateAccount()
+  const { impersonateAccounts, updateImpersonateAccounts } =
+    useImpersonateAccount()
+  const { searchType, searchValue, searchInput } = SearchInput({
+    disabled: (impersonateAccounts?.length ?? 0) < 1,
+    storageKey: StoreNames.Impersonate
+  })
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-    const [error, setError] = useState<string | null>(null)
+  const handleLogin = async (loginConfigs: AccountItem) => {
+    // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
+    const homeRes = await sendToBackground({
+      name: "impersonate",
+      body: loginConfigs
+    })
+  }
+  const handleCancel = () => {
+    setIsDeleteModalOpen(false)
+  }
 
+  const filteredAccounts =
+    impersonateAccounts?.filter((account) =>
+      account?.[searchType?.value ?? ""]
+        ?.toLowerCase()
+        ?.includes?.(searchValue.toLowerCase())
+    ) ?? []
 
-    const handleLogin = async (loginConfigs: AccountItem) => {
-        // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
-        const homeRes = await sendToBackground({
-            name:'impersonate',
-            body:loginConfigs
-        })
-
-
-    }
-    const handleCancel = () => {
-        setIsDeleteModalOpen(false)
-    }
   return (
     <Container>
-        <TitleWithAddButton title="Impersonate" onAddClick={() => {
-            setIsAddModalOpen(true)
-        }} />
+      <TitleWithAddButton
+        title="Impersonate"
+        onAddClick={() => {
+          setIsAddModalOpen(true)
+        }}
+      />
 
-        {impersonateAccounts?.length ? (
-            <LoginAccounts>
-                {impersonateAccounts.map((loginAccount) => {
-                    return (
-                        <Tooltip
-                            key={loginAccount.userId}
-                            placement="topLeft"
-                            title={`${loginAccount.tag || loginAccount.userId}`}>
-                            <UserItem>
-                                <UserName>{loginAccount.tag||loginAccount.userId}</UserName>
+      {impersonateAccounts?.length ? (
+        <>
+          {searchInput}
+          <LoginAccounts>
+            {filteredAccounts.map((loginAccount) => {
+              return (
+                <Tooltip
+                  key={loginAccount.userId}
+                  placement="topLeft"
+                  title={`${loginAccount.tag || loginAccount.email}`}>
+                  <UserItem>
+                    <UserName>
+                      {loginAccount.tag || loginAccount.email}
+                    </UserName>
 
-                                <Operations>
-                                    <Select
-                                        placeholder="Select Env"
-                                        value={loginAccount.env.value}
-                                        onChange={(_, env) => {
-                                            updateImpersonateAccounts(
-                                                impersonateAccounts.map((item) => {
-                                                    return item.userId === loginAccount.userId
-                                                        ? {
-                                                            ...item,
-                                                            env: env as typeof defaultUserConfigs.env
-                                                        }
-                                                        : item
-                                                })
-                                            )
-                                        }}
-                                        options={envOptions}
-                                    />
+                    <Operations>
+                      <Select
+                        placeholder="Select Env"
+                        value={loginAccount.env.value}
+                        onChange={(_, env) => {
+                          updateImpersonateAccounts(
+                            impersonateAccounts.map((item) => {
+                              return item.userId === loginAccount.userId
+                                ? {
+                                    ...item,
+                                    env: env as typeof defaultUserConfigs.env
+                                  }
+                                : item
+                            })
+                          )
+                        }}
+                        options={envOptions}
+                      />
 
-                                    <Button
-                                        type="primary"
-                                        onClick={() => {
-                                            handleLogin(loginAccount)
-                                        }}>
-                                        Impersonate
-                                    </Button>
-                                    <Button
-                                        type="primary"
-                                        shape="circle"
-                                        icon={<DeleteOutlined />}
-                                        size="middle"
-                                        danger
-                                        onClick={() => {
-                                            setRemoveSelectedItem(loginAccount)
-                                            setIsDeleteModalOpen(true)
-                                        }}
-                                    />
-                                </Operations>
-                            </UserItem>
-                        </Tooltip>
-                    )
-                })}
-                {error ? <ErrorText>{error}</ErrorText> : null}
-            </LoginAccounts>
-        ) : (
-            <EmptyContent description="No data, please click the button to add an account." />
-        )}
-        <Modal
-            title="Delete Account"
-            open={isDeleteModalOpen}
-            onOk={() => {
-                if (!removeSelectedItem) return
-                const filteredConfigs = impersonateAccounts.filter(
-                    (accountConfig) => accountConfig.userId !== removeSelectedItem.userId
-                )
-                updateImpersonateAccounts(filteredConfigs)
-                setIsDeleteModalOpen(false)
-                setRemoveSelectedItem(null)
-            }}
-            onCancel={handleCancel}>
-            Are you sure you want to delete your account? This action cannot be
-            undone. All your data will be permanently removed. Do you wish to
-            proceed?
-        </Modal>
-        <Modal
-            title="Add a new account"
-            open={isAddModalOpen}
-            okText="Submit"
-            onOk={() => {
-                if (newUserConfigs?.userId?.length) {
-                    updateImpersonateAccounts([
-                        ...impersonateAccounts,
-                        {...newUserConfigs,createdAt:new Date().toISOString(),}
-                    ])
-                    setNewUserConfigs(defaultUserConfigs)
-                } else {
-                    setError("The userId is required")
-                }
-                setIsAddModalOpen(false)
-            }}
-            onCancel={() => {
-                setIsAddModalOpen(false)
-            }}>
-            <Form>
-                <Input
-                    type="text"
-                    placeholder="Please enter userId"
-                    onChange={(e) =>
-                        setNewUserConfigs({
-                            ...newUserConfigs,
-                            userId: e.target.value
-                        })
-                    }
-                    value={newUserConfigs.userId}
-                />
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handleLogin(loginAccount)
+                        }}>
+                        Impersonate
+                      </Button>
+                      <Button
+                        type="primary"
+                        shape="circle"
+                        icon={<DeleteOutlined />}
+                        size="middle"
+                        danger
+                        onClick={() => {
+                          setRemoveSelectedItem(loginAccount)
+                          setIsDeleteModalOpen(true)
+                        }}
+                      />
+                    </Operations>
+                  </UserItem>
+                </Tooltip>
+              )
+            })}
+            {error ? <ErrorText>{error}</ErrorText> : null}
+          </LoginAccounts>
+        </>
+      ) : (
+        <EmptyContent description="No data, please click the button to add an account." />
+      )}
+      <Modal
+        title="Delete Account"
+        open={isDeleteModalOpen}
+        onOk={() => {
+          if (!removeSelectedItem) return
+          const filteredConfigs = impersonateAccounts.filter(
+            (accountConfig) =>
+              accountConfig.userId !== removeSelectedItem.userId
+          )
+          updateImpersonateAccounts(filteredConfigs)
+          setIsDeleteModalOpen(false)
+          setRemoveSelectedItem(null)
+        }}
+        onCancel={handleCancel}>
+        Are you sure you want to delete your account? This action cannot be
+        undone. All your data will be permanently removed. Do you wish to
+        proceed?
+      </Modal>
+      <Modal
+        title="Add a new account"
+        open={isAddModalOpen}
+        okText="Submit"
+        onOk={() => {
+          if (newUserConfigs?.userId?.length) {
+            updateImpersonateAccounts([
+              ...impersonateAccounts,
+              { ...newUserConfigs, createdAt: new Date().toISOString() }
+            ])
+            setNewUserConfigs(defaultUserConfigs)
+          } else {
+            setError("The userId is required")
+          }
+          setIsAddModalOpen(false)
+        }}
+        onCancel={() => {
+          setIsAddModalOpen(false)
+        }}>
+        <Form>
+          <Input
+            type="text"
+            placeholder="Please enter userId"
+            onChange={(e) =>
+              setNewUserConfigs({
+                ...newUserConfigs,
+                userId: e.target.value
+              })
+            }
+            value={newUserConfigs.userId}
+          />
 
-                <Input
-                    type="text"
-                    placeholder="Please set a tag to help you distinguish the purpose of this account."
-                    onChange={(e) =>
-                        setNewUserConfigs({
-                            ...newUserConfigs,
-                            tag: e.target.value
-                        })
-                    }
-                    value={newUserConfigs.tag}
-                />
-            </Form>
-        </Modal>
+          <Input
+            type="text"
+            placeholder="Please set a tag to help you distinguish the purpose of this account."
+            onChange={(e) =>
+              setNewUserConfigs({
+                ...newUserConfigs,
+                tag: e.target.value
+              })
+            }
+            value={newUserConfigs.tag}
+          />
+        </Form>
+      </Modal>
     </Container>
   )
 }
 
 const Container = styled.div`
-    display: grid;
-    grid-auto-flow: row;
-    grid-gap: 8px;
+  display: grid;
+  grid-auto-flow: row;
+  grid-gap: 8px;
 `
 
 const Form = styled.div`
-    display: grid;
-    grid-auto-flow: row;
-    gap: 8px;
-`;
+  display: grid;
+  grid-auto-flow: row;
+  gap: 8px;
+`
 
 const LoginAccounts = styled.div`
   display: grid;
