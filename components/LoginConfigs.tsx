@@ -220,7 +220,7 @@ const LoginAccounts = styled.div`
   display: grid;
   grid-template-rows: repeat(auto-fill, minmax(40px, 1fr));
   grid-gap: 8px;
-  height: 300px;
+  height: calc(548px - 140px);
   overflow-y: auto;
   
 `

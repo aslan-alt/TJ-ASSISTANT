@@ -183,9 +183,8 @@ const LoginAccounts = styled.div`
   display: grid;
   grid-template-rows: repeat(auto-fill, minmax(40px, 1fr));
   grid-gap: 8px;
-  height: 200px;
+  height: calc(548px - 140px);
   overflow-y: auto;
-  padding: 24px 0;
 `
 
 const UserItem = styled.div`

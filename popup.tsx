@@ -51,6 +51,7 @@ function IndexPopup() {
 
 const Container = styled.div`
   width: 500px;
+    height: 548px;
   padding: 24px;
   border-radius: 8px;
   display: grid;
