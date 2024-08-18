@@ -9,7 +9,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { EmptyContent } from "~components/EmptyContent"
 import { SearchInput } from "~components/SearchInput"
-import { TitleWithAddButton } from "~components/TitleWithAddButton"
+import { TitleWithButton } from "~components/TitleWithButton"
 import {
   defaultUserConfigs,
   envOptions,
@@ -64,9 +64,10 @@ export const LoginConfigs = () => {
 
   return (
     <Container>
-      <TitleWithAddButton
+      <TitleWithButton
+        buttonText="Add account"
         title="Users list for login"
-        onAddClick={() => {
+        onClick={() => {
           setIsAddModalOpen(true)
         }}
       />

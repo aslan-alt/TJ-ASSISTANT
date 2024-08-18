@@ -1,17 +1,11 @@
 import { DeleteOutlined, InboxOutlined } from "@ant-design/icons"
-import {
-  Button,
-  message,
-  Table,
-  Tag,
-  Typography,
-  Upload,
-  type TableColumnsType
-} from "antd"
+import { Button, message, Modal, Table, Tag, Typography, Upload } from "antd"
 import { isEmpty } from "lodash"
+import { useState } from "react"
 import { ExcelRenderer } from "react-excel-renderer"
 import styled from "styled-components"
 
+import { TitleWithButton } from "~components/TitleWithButton"
 import { envOptions, roleOptions, type AccountItem } from "~constants"
 import {
   StoreNames,
@@ -30,6 +24,13 @@ export const Settings = () => {
     StoreNames.Impersonate
   )
   const { mutateAsync: deleteAllAccounts } = useDeleteAllAccounts()
+  const { mutateAsync: deleteAllLogin } = useDeleteAllAccounts(StoreNames.Login)
+  const { mutateAsync: deleteAllImpersonate } = useDeleteAllAccounts(
+    StoreNames.Impersonate
+  )
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [deleteType, setDeleteType] = useState<StoreNames>()
 
   const handleFile = (info) => {
     const { status } = info.file
@@ -80,46 +81,57 @@ export const Settings = () => {
     }
   }
 
-  const columns: TableColumnsType<Partial<AccountItem>> = [
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Role", dataIndex: "role", key: "role" },
-    {
-      title: "Action",
-      dataIndex: "",
-      key: "x",
-      render: () => <a>Delete</a>
-    }
-  ]
-
-  const datax: AccountItem[] = accounts?.map((item) => ({
-    ...item,
-    key: item.email
-  }))
-
   return accounts?.length ? (
     <div>
-      <Button
-        type="primary"
-        shape="round"
-        danger
-        icon={<DeleteOutlined />}
-        size="middle"
-        onClick={() => {
-          deleteAllAccounts()
-        }}>
-        Clear accounts
-      </Button>
-      <StyledTable
-        className="test"
-        columns={columns}
-        expandable={{
-          expandedRowRender: (record) => (
-            <p style={{ margin: 0 }}>{record.notes}</p>
-          ),
-          rowExpandable: (record) => !!record.notes
+      <Modal
+        title="Delete Account"
+        open={isDeleteModalOpen}
+        onOk={() => {
+          const actions = {
+            [StoreNames.All]: deleteAllAccounts,
+            [StoreNames.Login]: deleteAllLogin,
+            [StoreNames.Impersonate]: deleteAllImpersonate
+          }
+          actions?.[deleteType]?.()
+          setDeleteType(undefined)
+          setIsDeleteModalOpen(false)
         }}
-        dataSource={datax}
-      />
+        onCancel={() => {
+          setDeleteType(undefined)
+          setIsDeleteModalOpen(false)
+        }}>
+        Are you sure you want to delete your account? This action cannot be
+        undone. All your data will be permanently removed. Do you wish to
+        proceed?
+      </Modal>
+      {[
+        {
+          type: StoreNames.All,
+          title: "Clear all accounts"
+        },
+        {
+          type: StoreNames.Login,
+          title: "Clear login accounts"
+        },
+        {
+          type: StoreNames.Impersonate,
+          title: "Clear impersonation accounts"
+        }
+      ].map((item) => {
+        return (
+          <TitleWithButton
+            key={item.type}
+            title={item.title}
+            buttonText="Clear"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              setIsDeleteModalOpen(true)
+              setDeleteType(item.type)
+            }}
+          />
+        )
+      })}
     </div>
   ) : (
     <SettingContainer>

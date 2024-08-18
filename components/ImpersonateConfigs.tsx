@@ -8,7 +8,7 @@ import { useStorage } from "@plasmohq/storage/dist/hook"
 
 import { EmptyContent } from "~components/EmptyContent"
 import { SearchInput } from "~components/SearchInput"
-import { TitleWithAddButton } from "~components/TitleWithAddButton"
+import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
 import { useImpersonateAccount } from "~hooks/useImpersonateAccount"
 import { StoreNames } from "~utils/indexedDB"
@@ -52,9 +52,10 @@ export const ImpersonateConfigs = () => {
 
   return (
     <Container>
-      <TitleWithAddButton
+      <TitleWithButton
+        buttonText="Add account"
         title="Impersonate"
-        onAddClick={() => {
+        onClick={() => {
           setIsAddModalOpen(true)
         }}
       />
