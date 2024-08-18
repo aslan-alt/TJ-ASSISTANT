@@ -3,8 +3,13 @@ import {type AccountItem, envOptions, roleOptions} from "~constants";
 import {useContext} from "react";
 
 const DB_NAME = "MyExtensionDatabase";
-const STORE_NAME = "accounts";
 const DB_VERSION = 1;
+
+export enum StoreNames {
+    All='accounts',
+    Login='loginAccounts',
+    Impersonate='impersonateAccounts',
+}
 
 function openDatabase(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -12,8 +17,14 @@ function openDatabase(): Promise<IDBDatabase> {
 
         request.onupgradeneeded = (event) => {
             const db = (event.target as IDBOpenDBRequest).result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                db.createObjectStore(STORE_NAME, { keyPath: "email" });
+            if (!db.objectStoreNames.contains(StoreNames.All)) {
+                db.createObjectStore(StoreNames.All, { keyPath: "email" });
+            }
+            if (!db.objectStoreNames.contains(StoreNames.Login)) {
+                db.createObjectStore(StoreNames.Login, { keyPath: "email" });
+            }
+            if (!db.objectStoreNames.contains(StoreNames.Impersonate)) {
+                db.createObjectStore(StoreNames.Impersonate, { keyPath: "email" });
             }
         };
 
@@ -24,11 +35,16 @@ function openDatabase(): Promise<IDBDatabase> {
     });
 }
 
+type GetStore = {
+    mode: IDBTransactionMode,
+    storeName:StoreNames
+}
+
 async function getStore(
-    mode: IDBTransactionMode = "readonly"
+    {mode, storeName}:GetStore = {mode:'readonly',storeName:StoreNames.All}
 ): Promise<IDBObjectStore> {
     const db = await openDatabase();
-    return db.transaction([STORE_NAME], mode).objectStore(STORE_NAME);
+    return db.transaction([storeName], mode).objectStore(storeName);
 }
 
 async function handleRequest<T>(request: IDBRequest): Promise<T> {
@@ -50,11 +66,11 @@ async function handleTransaction(transaction: IDBTransaction): Promise<boolean> 
 }
 
 // React Query Hook for getting accounts
-export function useGetAccounts() {
+export function useGetAccounts(storeName=StoreNames.All) {
     return useQuery({
-        queryKey:['accounts'],
+        queryKey:[storeName],
         queryFn:async () => {
-            const store = await getStore();
+            const store = await getStore({mode:'readonly',storeName});
             return handleRequest<AccountItem[]>(store.getAll());
         },
         select:(accounts)=>{
@@ -63,14 +79,14 @@ export function useGetAccounts() {
     });
 }
 
-// React Query Mutation for saving accounts
-export function useSaveAccounts() {
+export function useUpdateAccounts(storeName:StoreNames) {
     const queryClient = useContext(QueryClientContext);
 
     return useMutation(
         {
+            mutationKey:[storeName],
             mutationFn:async (accounts: AccountItem[]) => {
-                const store = await getStore("readwrite");
+                const store = await getStore({mode:'readwrite',storeName});
                 store.clear();
                 const result = accounts.map((account) => {
                     const formatedAccount = {
@@ -89,27 +105,28 @@ export function useSaveAccounts() {
                 };
             },
             onSuccess: () => {
-                queryClient.invalidateQueries({queryKey:['accounts']});
+                queryClient.invalidateQueries({queryKey:[storeName]});
             },
         }
     );
 }
 
+
 // React Query Mutation for deleting all accounts
-export function useDeleteAllAccounts() {
+export function useDeleteAllAccounts(storeName=StoreNames.All) {
     const queryClient = useContext(QueryClientContext);
 
     return useMutation(
         {
             mutationFn:async () => {
-                const store = await getStore("readwrite");
+                const store = await getStore({mode:'readwrite',storeName});
                 store.clear();
                 return handleTransaction(store.transaction);
             },
             onSuccess: () => {
                 // Invalidate and refetch
                 queryClient.invalidateQueries({
-                    queryKey:['accounts']
+                    queryKey:[storeName]
                 });
             },
         }

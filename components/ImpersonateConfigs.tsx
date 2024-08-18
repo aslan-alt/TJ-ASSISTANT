@@ -1,42 +1,31 @@
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithAddButton } from "~components/TitleWithAddButton"
 import {Button, Input, Modal, Select, Tooltip} from "antd";
-import {defaultImpersonateConfigs, defaultUserConfigs, envOptions, LOCAL_STORAGE_KEY_IMPERSONATE, roleOptions} from "~constants";
+import {type AccountItem, defaultUserConfigs, envOptions, LOCAL_STORAGE_KEY_IMPERSONATE, roleOptions} from "~constants";
 import {DeleteOutlined} from "@ant-design/icons";
-import {AddNewLoginAccountForm} from "~components/AddNewLoginAccountForm";
 import styled from "styled-components";
 import {useStorage} from "@plasmohq/storage/dist/hook";
 import {useState} from "react";
 import {sendToBackground} from "@plasmohq/messaging";
-import { v4 as uuidv4 } from "uuid"
+import {useImpersonateAccount} from "~hooks/useImpersonateAccount";
 
 export const ImpersonateConfigs = () => {
-    const [userAccountsForLogin, setUserAccountsForLogin] = useStorage<
-        (typeof defaultImpersonateConfigs)[]
-    >(LOCAL_STORAGE_KEY_IMPERSONATE, [])
-
-    const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
     const [newUserConfigs, setNewUserConfigs] = useStorage(
         "impersonateConfigs",
-        defaultImpersonateConfigs
+        defaultUserConfigs
     )
+
+    const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
+
+    const {impersonateAccounts,updateImpersonateAccounts} = useImpersonateAccount()
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
     const [error, setError] = useState<string | null>(null)
 
-    const handleOk = () => {
-        if (!removeSelectedItem) return
-        const filteredConfigs = userAccountsForLogin.filter(
-            (accountConfig) => accountConfig.userId !== removeSelectedItem.userId
-        )
-        setUserAccountsForLogin(filteredConfigs)
-        setIsDeleteModalOpen(false)
-        setRemoveSelectedItem(null)
-    }
 
-    const handleLogin = async (loginConfigs: typeof newUserConfigs) => {
+    const handleLogin = async (loginConfigs: AccountItem) => {
         // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
         const homeRes = await sendToBackground({
             name:'impersonate',
@@ -54,9 +43,9 @@ export const ImpersonateConfigs = () => {
             setIsAddModalOpen(true)
         }} />
 
-        {userAccountsForLogin?.length ? (
+        {impersonateAccounts?.length ? (
             <LoginAccounts>
-                {userAccountsForLogin.map((loginAccount) => {
+                {impersonateAccounts.map((loginAccount) => {
                     return (
                         <Tooltip
                             key={loginAccount.userId}
@@ -70,12 +59,12 @@ export const ImpersonateConfigs = () => {
                                         placeholder="Select Env"
                                         value={loginAccount.env.value}
                                         onChange={(_, env) => {
-                                            setUserAccountsForLogin(
-                                                userAccountsForLogin.map((item) => {
+                                            updateImpersonateAccounts(
+                                                impersonateAccounts.map((item) => {
                                                     return item.userId === loginAccount.userId
                                                         ? {
                                                             ...item,
-                                                            env: env as typeof defaultUserConfigs.role
+                                                            env: env as typeof defaultUserConfigs.env
                                                         }
                                                         : item
                                                 })
@@ -115,7 +104,15 @@ export const ImpersonateConfigs = () => {
         <Modal
             title="Delete Account"
             open={isDeleteModalOpen}
-            onOk={handleOk}
+            onOk={() => {
+                if (!removeSelectedItem) return
+                const filteredConfigs = impersonateAccounts.filter(
+                    (accountConfig) => accountConfig.userId !== removeSelectedItem.userId
+                )
+                updateImpersonateAccounts(filteredConfigs)
+                setIsDeleteModalOpen(false)
+                setRemoveSelectedItem(null)
+            }}
             onCancel={handleCancel}>
             Are you sure you want to delete your account? This action cannot be
             undone. All your data will be permanently removed. Do you wish to
@@ -126,12 +123,12 @@ export const ImpersonateConfigs = () => {
             open={isAddModalOpen}
             okText="Submit"
             onOk={() => {
-                if (newUserConfigs.userId?.length) {
-                    setUserAccountsForLogin([
-                        ...userAccountsForLogin,
-                        newUserConfigs
+                if (newUserConfigs?.userId?.length) {
+                    updateImpersonateAccounts([
+                        ...impersonateAccounts,
+                        {...newUserConfigs,createdAt:new Date().toISOString(),}
                     ])
-                    setNewUserConfigs(defaultImpersonateConfigs)
+                    setNewUserConfigs(defaultUserConfigs)
                 } else {
                     setError("The userId is required")
                 }

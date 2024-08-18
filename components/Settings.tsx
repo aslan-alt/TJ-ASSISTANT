@@ -1,16 +1,18 @@
-import { ExcelRenderer } from 'react-excel-renderer';
+import {ExcelRenderer} from 'react-excel-renderer';
 import {Button, Table, type TableColumnsType} from "antd";
-import {useDeleteAllAccounts, useGetAccounts, useSaveAccounts} from "~utils/indexedDB";
+import {StoreNames, useDeleteAllAccounts, useGetAccounts, useUpdateAccounts} from "~utils/indexedDB";
 import styled from "styled-components";
 import {DeleteOutlined} from "@ant-design/icons";
 import type {AccountItem} from "~constants";
-
+import {isEmpty} from "lodash";
 
 
 export const Settings = ()=> {
     const {data:accounts,...rest} =useGetAccounts()
-    const {mutate} = useSaveAccounts()
-    const {mutate:deleteAllAccounts} = useDeleteAllAccounts()
+    const {mutateAsync:updateAccounts} = useUpdateAccounts(StoreNames.All)
+    const {mutateAsync:updateLoginAccounts} = useUpdateAccounts(StoreNames.Login)
+    const {mutateAsync:updateImpersonateAccounts} = useUpdateAccounts(StoreNames.Impersonate)
+    const {mutateAsync:deleteAllAccounts} = useDeleteAllAccounts()
 
     const handleFile = (event) => {
         const fileObj = event.target.files[0];
@@ -31,9 +33,13 @@ export const Settings = ()=> {
                     teamName:item?.[5],
                     TeamId:item?.[6],
                     notes:item?.[7],
+                    createdAt: new Date().toISOString(),
                 }))
                 try {
-                    mutate(accountsFromExcel);
+
+                    await updateAccounts(accountsFromExcel);
+                    await updateLoginAccounts(accountsFromExcel?.filter(account=>!isEmpty(account?.password)))
+                    await updateImpersonateAccounts(accountsFromExcel?.filter(account=>!isEmpty(account?.userId)))
                 } catch (error) {
                     console.error(error);
                 }

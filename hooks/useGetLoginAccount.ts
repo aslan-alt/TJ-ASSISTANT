@@ -1,24 +1,18 @@
-import {isEmpty} from "lodash"
-import {useGetAccounts, useSaveAccounts} from "~utils/indexedDB";
-import {useEffect, useState} from "react";
+import {StoreNames, useGetAccounts, useUpdateAccounts} from "~utils/indexedDB";
 import {type AccountItem} from "~constants";
 
 export const useGetLoginAccount = () => {
-    const [loginAccounts,setLoginAccounts] = useState<AccountItem[]>([])
-    const {data:accounts,...rest} =useGetAccounts()
-    const {mutate} = useSaveAccounts()
+    const {data:loginAccounts,...rest} =useGetAccounts(StoreNames.Login)
+    const {mutate} = useUpdateAccounts(StoreNames.Login)
 
     const updateLoginAccount = (newLoginAccounts:AccountItem[])=>{
         mutate(newLoginAccounts)
     }
 
-    useEffect(() => {
-        setLoginAccounts(accounts)
-    }, [accounts]);
+
 
     return {
         loginAccounts,
-        setLoginAccounts,
         updateLoginAccount
     }
 }

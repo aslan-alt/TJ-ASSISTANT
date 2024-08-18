@@ -192,7 +192,7 @@ export const LoginConfigs = () => {
         okText="Submit"
         onOk={() => {
           if (newAccountItem.password?.length && newAccountItem.email?.length) {
-            updateLoginAccount([...loginAccounts, newAccountItem])
+            updateLoginAccount([...loginAccounts, {...newAccountItem,createdAt:new Date().toISOString()}])
             setNewUserConfigs(defaultUserConfigs)
           } else {
             setError("The email and password are required")

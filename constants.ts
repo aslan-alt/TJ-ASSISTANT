@@ -13,7 +13,7 @@ export type AccountItem = {
   userId?: string;
   env?:typeof envOptions[0];
   tag?:string;
-  createdAt?:string;
+  createdAt:string;
 }
 
 export const envOptions = [
@@ -29,18 +29,13 @@ export const roleOptions = [
 ]
 
 
-export const defaultUserConfigs = {
+export const defaultUserConfigs:Omit<AccountItem, 'createdAt'> = {
   tag: "",
   email: "",
   password: "",
   env: envOptions[0],
-  role: roleOptions[1]
-}
-
-export const defaultImpersonateConfigs = {
-  userId: "",
-  tag: "",
-  env: envOptions[0]
+  role: roleOptions[1],
+  userId:'',
 }
 
 export const xPathForLoginWays = {
