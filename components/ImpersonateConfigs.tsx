@@ -145,7 +145,7 @@ export const ImpersonateConfigs = () => {
         open={isAddModalOpen}
         okText="Submit"
         onOk={() => {
-          if (newUserConfigs?.userId?.length) {
+          if (newUserConfigs?.userId?.length && newUserConfigs?.email.length) {
             updateImpersonateAccounts([
               ...impersonateAccounts,
               { ...newUserConfigs, createdAt: new Date().toISOString() }
@@ -160,6 +160,17 @@ export const ImpersonateConfigs = () => {
           setIsAddModalOpen(false)
         }}>
         <Form>
+          <Input
+            type="text"
+            placeholder="Please enter Email"
+            onChange={(e) =>
+              setNewUserConfigs({
+                ...newUserConfigs,
+                email: e.target.value
+              })
+            }
+            value={newUserConfigs.userId}
+          />
           <Input
             type="text"
             placeholder="Please enter userId"
