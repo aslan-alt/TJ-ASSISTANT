@@ -3,6 +3,7 @@ import {
   Button,
   message,
   Table,
+  Tag,
   Typography,
   Upload,
   type TableColumnsType
@@ -11,7 +12,7 @@ import { isEmpty } from "lodash"
 import { ExcelRenderer } from "react-excel-renderer"
 import styled from "styled-components"
 
-import type { AccountItem } from "~constants"
+import { envOptions, roleOptions, type AccountItem } from "~constants"
 import {
   StoreNames,
   useDeleteAllAccounts,
@@ -49,11 +50,13 @@ export const Settings = () => {
               email: item?.[0],
               password: item?.[1],
               displayName: item?.[2],
-              role: item?.[3],
-              userId: item?.[4],
-              teamName: item?.[5],
+              userId: item?.[3],
+              teamName: item?.[4],
+              tag: item?.[5],
               TeamId: item?.[6],
               notes: item?.[7],
+              env: envOptions[0],
+              role: roleOptions[0],
               createdAt: new Date().toISOString()
             }))
           try {
@@ -119,8 +122,10 @@ export const Settings = () => {
       />
     </div>
   ) : (
-    <>
-      <Typography.Title>Import Accounts</Typography.Title>
+    <SettingContainer>
+      <Typography.Title level={4} style={{ margin: "0" }}>
+        Import Accounts
+      </Typography.Title>
       <Upload.Dragger name="file" height={200} onChange={handleFile}>
         <p className="ant-upload-drag-icon">
           <InboxOutlined />
@@ -129,7 +134,11 @@ export const Settings = () => {
           Click or drag file to this area to upload
         </p>
       </Upload.Dragger>
-    </>
+      <Typography.Text>
+        If you are unsure about the table format, you can contact
+        <Tag color="blue">@tg-qa-cn</Tag>
+      </Typography.Text>
+    </SettingContainer>
   )
 }
 
@@ -137,4 +146,10 @@ const StyledTable = styled(Table)`
   .ant-table-pagination-right {
     justify-content: center !important;
   }
+`
+
+const SettingContainer = styled.div`
+  display: grid;
+  grid-auto-flow: row;
+  grid-gap: 8px;
 `
