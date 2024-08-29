@@ -7,10 +7,10 @@ import { sendToBackground } from "@plasmohq/messaging"
 import { useStorage } from "@plasmohq/storage/dist/hook"
 
 import { EmptyContent } from "~components/EmptyContent"
-import { SearchInput } from "~components/SearchInput"
 import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
 import { useImpersonateAccount } from "~hooks/useImpersonateAccount"
+import { useSearchInput } from "~hooks/useSearchInput"
 import { StoreNames } from "~utils/indexedDB"
 
 export const ImpersonateConfigs = () => {
@@ -23,7 +23,7 @@ export const ImpersonateConfigs = () => {
 
   const { impersonateAccounts, updateImpersonateAccounts } =
     useImpersonateAccount()
-  const { searchType, searchValue, searchInput } = SearchInput({
+  const { searchType, searchValue, searchInput } = useSearchInput({
     disabled: (impersonateAccounts?.length ?? 0) < 1,
     storageKey: StoreNames.Impersonate
   })

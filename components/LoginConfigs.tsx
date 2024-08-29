@@ -8,7 +8,6 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { EmptyContent } from "~components/EmptyContent"
-import { SearchInput } from "~components/SearchInput"
 import { TitleWithButton } from "~components/TitleWithButton"
 import {
   defaultUserConfigs,
@@ -17,6 +16,7 @@ import {
   type AccountItem
 } from "~constants"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
+import { useSearchInput } from "~hooks/useSearchInput"
 import { StoreNames } from "~utils/indexedDB"
 
 export const LoginConfigs = () => {
@@ -32,7 +32,7 @@ export const LoginConfigs = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  const { searchType, searchValue, searchInput } = SearchInput({
+  const { searchType, searchValue, searchInput } = useSearchInput({
     disabled: (loginAccounts?.length ?? 0) < 1,
     storageKey: StoreNames.Login
   })

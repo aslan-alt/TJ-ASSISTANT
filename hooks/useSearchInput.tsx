@@ -1,4 +1,5 @@
 import { Input, Select, Space } from "antd"
+import { useState } from "react"
 import styled from "styled-components"
 
 import { useStorage } from "@plasmohq/storage/dist/hook"
@@ -9,33 +10,28 @@ const searchTypes = [
   { value: "notes", label: "Search by notes" }
 ]
 
-export const SearchInput = ({
+export const useSearchInput = ({
   disabled,
   storageKey
 }: {
   disabled: boolean
   storageKey: string
 }) => {
-  const [searchValue, setSearchValue] = useStorage(
-    `searchValue-${storageKey}`,
-    ""
-  )
-  const [searchType, setSearchType] = useStorage(
-    `searchType-${storageKey}`,
-    searchTypes[0]
-  )
+  const [searchValue, setSearchValue] = useState<string>("")
+  const [searchType, setSearchType] = useState(searchTypes[0])
 
   const searchInput = (
     <Space.Compact>
       <SearchSelect
-        defaultValue={searchType.value}
+        value={searchType.value}
         options={searchTypes}
         onChange={(_, nweSearchType) => {
           setSearchType(nweSearchType as (typeof searchTypes)[0])
         }}
       />
       <Input
-        placeholder="Search by email"
+        value={searchValue}
+        placeholder={`Please center the ${searchType?.label?.replace("Search by ", "")}`}
         size="large"
         allowClear
         disabled={disabled}
