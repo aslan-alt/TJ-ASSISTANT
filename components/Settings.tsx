@@ -1,5 +1,5 @@
 import { DeleteOutlined, InboxOutlined } from "@ant-design/icons"
-import { Button, message, Modal, Table, Tag, Typography, Upload } from "antd"
+import { message, Modal, Table, Tag, Typography, Upload } from "antd"
 import { isEmpty } from "lodash"
 import { useState } from "react"
 import { ExcelRenderer } from "react-excel-renderer"
@@ -30,7 +30,6 @@ export const Settings = () => {
   )
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [deleteType, setDeleteType] = useState<StoreNames>()
 
   const handleFile = (info) => {
     const { status } = info.file
@@ -92,46 +91,27 @@ export const Settings = () => {
             [StoreNames.Login]: deleteAllLogin,
             [StoreNames.Impersonate]: deleteAllImpersonate
           }
-          actions?.[deleteType]?.()
-          setDeleteType(undefined)
+          deleteAllAccounts()
+          deleteAllLogin()
+          deleteAllImpersonate()
           setIsDeleteModalOpen(false)
         }}
         onCancel={() => {
-          setDeleteType(undefined)
           setIsDeleteModalOpen(false)
         }}>
         Are you sure you want to delete your account? This action cannot be
         undone. All your data will be permanently removed. Do you wish to
         proceed?
       </Modal>
-      {[
-        {
-          type: StoreNames.All,
-          title: "Clear all accounts"
-        },
-        {
-          type: StoreNames.Login,
-          title: "Clear login accounts"
-        },
-        {
-          type: StoreNames.Impersonate,
-          title: "Clear impersonation accounts"
-        }
-      ].map((item) => {
-        return (
-          <TitleWithButton
-            key={item.type}
-            title={item.title}
-            buttonText="Clear"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              setIsDeleteModalOpen(true)
-              setDeleteType(item.type)
-            }}
-          />
-        )
-      })}
+      <TitleWithButton
+        title="Clear all accounts"
+        buttonText="Clear"
+        danger
+        icon={<DeleteOutlined />}
+        onClick={() => {
+          setIsDeleteModalOpen(true)
+        }}
+      />
     </div>
   ) : (
     <SettingContainer>
