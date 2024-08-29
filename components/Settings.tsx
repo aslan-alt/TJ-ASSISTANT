@@ -134,12 +134,6 @@ export const Settings = () => {
   )
 }
 
-const StyledTable = styled(Table)`
-  .ant-table-pagination-right {
-    justify-content: center !important;
-  }
-`
-
 const SettingContainer = styled.div`
   display: grid;
   grid-auto-flow: row;
