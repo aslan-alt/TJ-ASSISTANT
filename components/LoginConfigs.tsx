@@ -17,6 +17,7 @@ import {
 } from "~constants"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
 import { useSearchInput } from "~hooks/useSearchInput"
+import { getChromeCurrentTab } from "~utils/chromeMethods"
 import { StoreNames } from "~utils/indexedDB"
 
 export const LoginConfigs = () => {
@@ -40,16 +41,16 @@ export const LoginConfigs = () => {
 
   const handleLogin = async (loginConfigs: AccountItem) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
-    const homeRes = await sendToBackground({
-      name: "goToHome",
-      body: loginConfigs
+
+    // const homeRes = await sendToBackground({
+    //   name: "goToHome",
+    //   body: loginConfigs
+    // })
+    const tab = await getChromeCurrentTab()
+    chrome.tabs.sendMessage(tab.id, {
+      action: "login",
+      ...loginConfigs
     })
-    if (homeRes?.tabId) {
-      chrome.tabs.sendMessage(homeRes.tabId, {
-        action: "login",
-        ...loginConfigs
-      })
-    }
   }
   const handleCancel = () => {
     setIsDeleteModalOpen(false)

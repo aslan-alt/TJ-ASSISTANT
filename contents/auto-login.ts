@@ -1,3 +1,5 @@
+import axios from "axios"
+
 import {
   roleOptions,
   xPathForLoginWays,
@@ -163,20 +165,18 @@ async function executeTargets(targets) {
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
-    const element = await waitForElement(loginButton)
-    // @ts-ignore
-    const logInButton = (element?.innerText ?? "").trim()
-
-    if (logInButton !== "Register/Sign In" || !element) {
-      console.log("111111111111")
-      await executeTargets(logoutConfigs)
-    } else {
-      console.log("request------")
-      console.log(request)
-      executeTargets(creatLoginConfigs({ ...request })).then(() => {
-        sendResponse({ status: "全部执行完毕" })
-      })
-    }
+    const response = await axios.post(
+      "/login/",
+      {
+        returnPerson: true,
+        email: request?.email,
+        password: request?.password
+      },
+      {
+        withCredentials: true
+      }
+    )
+    location.reload()
   }
   if (request.action === "impersonate") {
     const element = await waitForElement(
