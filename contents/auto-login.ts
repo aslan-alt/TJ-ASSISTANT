@@ -165,7 +165,7 @@ async function executeTargets(targets) {
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
-    const response = await axios.post(
+    await axios.post(
       "/login/",
       {
         returnPerson: true,

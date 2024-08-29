@@ -42,15 +42,26 @@ export const LoginConfigs = () => {
   const handleLogin = async (loginConfigs: AccountItem) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
 
-    // const homeRes = await sendToBackground({
-    //   name: "goToHome",
-    //   body: loginConfigs
-    // })
     const tab = await getChromeCurrentTab()
-    chrome.tabs.sendMessage(tab.id, {
-      action: "login",
-      ...loginConfigs
-    })
+
+    const url = new URL(tab.url)
+    const currentHost = url.host
+
+    if (currentHost !== loginConfigs.env.value) {
+      console.log("currentHost-------")
+      console.log(currentHost)
+      await sendToBackground({
+        name: "createNewTab",
+        body: loginConfigs
+      })
+    } else {
+      chrome.tabs.sendMessage(tab.id, {
+        action: "login",
+        ...loginConfigs
+      })
+    }
+
+    console.log("Current Host:", currentHost)
   }
   const handleCancel = () => {
     setIsDeleteModalOpen(false)
