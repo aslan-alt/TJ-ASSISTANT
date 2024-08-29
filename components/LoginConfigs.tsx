@@ -44,24 +44,27 @@ export const LoginConfigs = () => {
 
     const tab = await getChromeCurrentTab()
 
-    const url = new URL(tab.url)
-    const currentHost = url.host
-
-    if (currentHost !== loginConfigs.env.value) {
-      console.log("currentHost-------")
-      console.log(currentHost)
+    if (!tab.url) {
       await sendToBackground({
         name: "createNewTab",
         body: loginConfigs
       })
     } else {
-      chrome.tabs.sendMessage(tab.id, {
-        action: "login",
-        ...loginConfigs
-      })
-    }
+      const url = new URL(tab.url)
+      const currentHost = url.host
 
-    console.log("Current Host:", currentHost)
+      if (loginConfigs.env.value.includes(currentHost)) {
+        chrome.tabs.sendMessage(tab.id, {
+          action: "login",
+          ...loginConfigs
+        })
+      } else {
+        await sendToBackground({
+          name: "createNewTab",
+          body: loginConfigs
+        })
+      }
+    }
   }
   const handleCancel = () => {
     setIsDeleteModalOpen(false)

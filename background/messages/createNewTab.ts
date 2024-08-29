@@ -1,8 +1,4 @@
-import axios from "axios"
-
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-
-import { getChromeCurrentTab } from "~utils/chromeMethods"
 
 const handler: PlasmoMessaging.PortHandler = async (req, res) => {
   chrome.tabs.create({ url: req.body.env.value }, (tab) => {
