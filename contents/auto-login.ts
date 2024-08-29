@@ -1,4 +1,8 @@
-import {type defaultUserConfigs, xPathForLoginWays, roleOptions} from "~constants"
+import {
+  roleOptions,
+  xPathForLoginWays,
+  type defaultUserConfigs
+} from "~constants"
 
 const loginButton = "/html/body/nav/nav/div[1]/div[2]/button"
 
@@ -30,8 +34,9 @@ async function waitForElement(xpath, timeout = 3000) {
   })
 }
 const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
-  if(userConfigs.role.value === roleOptions[0].value){
-   return [
+  if (userConfigs.role.value === roleOptions[0].value) {
+    // CAG
+    return [
       {
         xpath: loginButton, // Sign in
         event: "click"
@@ -40,15 +45,50 @@ const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
         xpath: xPathForLoginWays[roleOptions[0].value], // select role
         event: "click"
       },
-     {
-       xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
-       event: "input",
-       value: userConfigs.email
-     },
-     {
-       xpath: '//*[@id="continue"]',
-       event: "click"
-     },
+      {
+        xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
+        event: "input",
+        value: userConfigs.email
+      },
+      {
+        xpath: '//*[@id="continue"]',
+        event: "click"
+      }
+    ]
+  }
+
+  if (userConfigs.role.value === roleOptions[1].value) {
+    return [
+      {
+        xpath: loginButton, // Sign in
+        event: "click"
+      },
+      {
+        xpath: xPathForLoginWays[userConfigs.role.value], // select role
+        event: "click"
+      },
+      {
+        xpath: "/html/body/div[4]/div[2]/div[2]/div/button[5]",
+        event: "click"
+      },
+      {
+        xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
+        event: "input",
+        value: userConfigs.email
+      },
+      {
+        xpath: '//*[@id="continue"]',
+        event: "click"
+      },
+      {
+        xpath: "/html/body/div[4]/div[2]/div[2]/div/form/div/label/input",
+        event: "input",
+        value: userConfigs.password
+      },
+      {
+        xpath: '//*[@id="continue"]',
+        event: "click"
+      }
     ]
   }
 
@@ -59,10 +99,6 @@ const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
     },
     {
       xpath: xPathForLoginWays[userConfigs.role.value], // select role
-      event: "click"
-    },
-    {
-      xpath: "/html/body/div[4]/div[2]/div[2]/div/button[5]",
       event: "click"
     },
     {
@@ -100,16 +136,13 @@ const logoutConfigs = [
   }
 ]
 
-const impersonateConfigs = [
-
-]
+const impersonateConfigs = []
 
 async function executeTargets(targets) {
   for (const target of targets) {
     const { xpath, event, value } = target
     try {
-
-      const element = await waitForElement(xpath);
+      const element = await waitForElement(xpath)
 
       if (!element) return
       if (event === "click") {
@@ -132,24 +165,28 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
     const element = await waitForElement(loginButton)
     // @ts-ignore
-    const logInButton = (element?.innerText??'').trim()
+    const logInButton = (element?.innerText ?? "").trim()
 
     if (logInButton !== "Register/Sign In" || !element) {
+      console.log("111111111111")
       await executeTargets(logoutConfigs)
     } else {
+      console.log("request------")
+      console.log(request)
       executeTargets(creatLoginConfigs({ ...request })).then(() => {
-        sendResponse({status:'全部执行完毕'})
+        sendResponse({ status: "全部执行完毕" })
       })
     }
   }
   if (request.action === "impersonate") {
-    const element = await waitForElement(   '//*[@id="root"]/div/div/div[2]/div/div[1]/div[6]/button')
-    if(element){
+    const element = await waitForElement(
+      '//*[@id="root"]/div/div/div[2]/div/div[1]/div[6]/button'
+    )
+    if (element) {
       // @ts-ignore
       element.click?.()
-    }else{
-      sendResponse({status:'没找到'})
+    } else {
+      sendResponse({ status: "没找到" })
     }
-
   }
 })
