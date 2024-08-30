@@ -1,18 +1,17 @@
 import axios from "axios"
 
+import { loginRequest, logoutRequest } from "~contentSendRequests"
+
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
-    await axios.post(
-      "/login/",
-      {
-        returnPerson: true,
-        email: request?.email,
-        password: request?.password
-      },
-      {
-        withCredentials: true
-      }
-    )
+    const isLogin = request.action === "login"
+    if (isLogin) {
+      await logoutRequest()
+    }
+    await loginRequest({
+      email: request.email,
+      password: request.password
+    })
     location.reload()
   }
   if (request.action === "impersonate") {
