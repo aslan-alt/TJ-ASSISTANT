@@ -1,10 +1,15 @@
 import axios from "axios"
 
-import { loginRequest, logoutRequest } from "~contentSendRequests"
+import {
+  impersonateRequest,
+  loginRequest,
+  logoutRequest,
+  stopImpersonateRequest
+} from "~contentSendRequests"
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
-    const isLogin = request.action === "login"
+    const isLogin = !!request?.user?.email
     if (isLogin) {
       await logoutRequest()
     }
@@ -15,16 +20,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     location.reload()
   }
   if (request.action === "impersonate") {
-    await axios.post(
-      "/impersonate/",
-      {
-        targetUserId: request.userId,
-        impersonation_tool: "a3g"
-      },
-      {
-        withCredentials: true
-      }
-    )
+    if (request?.user?.isImpersonating) {
+      await stopImpersonateRequest()
+    }
+    await impersonateRequest(request.userId)
     location.reload()
   }
 })

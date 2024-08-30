@@ -21,3 +21,28 @@ export const logoutRequest = () => {
     withCredentials: true
   })
 }
+
+export const impersonateRequest = (userId: string) => {
+  return axios.post(
+    "/impersonate/",
+    {
+      targetUserId: userId,
+      impersonation_tool: "a3g"
+    },
+    {
+      withCredentials: true
+    }
+  )
+}
+
+export const stopImpersonateRequest = () => {
+  return axios.post(
+    "/unimpersonate/",
+    {
+      impersonation_tool: "impersonation_banner"
+    },
+    {
+      withCredentials: true
+    }
+  )
+}

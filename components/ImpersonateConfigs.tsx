@@ -33,12 +33,10 @@ export const ImpersonateConfigs = () => {
 
   const [error, setError] = useState<string | null>(null)
 
-  const handleLogin = async (loginConfigs: AccountItem) => {
-    // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
-    const tab = await getChromeCurrentTab()
-    chrome.tabs.sendMessage(tab.id, {
-      action: "impersonate",
-      ...loginConfigs
+  const handleImpersonate = async (loginConfigs: AccountItem) => {
+    await sendToBackground({
+      name: "impersonate",
+      body: loginConfigs
     })
   }
   const handleCancel = () => {
@@ -99,7 +97,7 @@ export const ImpersonateConfigs = () => {
                       <Button
                         type="primary"
                         onClick={() => {
-                          handleLogin(loginAccount)
+                          handleImpersonate(loginAccount)
                         }}>
                         Impersonate
                       </Button>
