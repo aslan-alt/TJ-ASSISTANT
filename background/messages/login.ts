@@ -1,27 +1,45 @@
-import { sendToBackground, type PlasmoMessaging } from "@plasmohq/messaging"
+import { type PlasmoMessaging } from "@plasmohq/messaging"
 
 import { getChromeCurrentTab } from "~utils/chromeMethods"
+import { createNewTab } from "~utils/createNewTab"
 import { getWindowUC } from "~utils/getWindowUC"
 
 const handler: PlasmoMessaging.PortHandler = async (req, res) => {
   const loginConfigs = req.body
   const tab = await getChromeCurrentTab()
   const windowUC = await getWindowUC(tab.id)
-
+  // open a new tab and then log in if user open the plug-in on an empty page
   if (!tab.url) {
-    // TODO: createNewTab
+    const { success, tab: newTab } = await createNewTab(req.body.env.value)
+    if (success) {
+      chrome.tabs.sendMessage(newTab.id, {
+        action: "login",
+        // @ts-ignore
+        user: windowUC?.user,
+        ...loginConfigs
+      })
+    }
   } else {
     const url = new URL(tab.url)
     const currentHost = url.host
-
+    //If the user is on the compass page and the newly logged in account is in the same environment
     if (loginConfigs.env.value.includes(currentHost)) {
       chrome.tabs.sendMessage(tab.id, {
         action: "login",
+        // @ts-ignore
         user: windowUC?.user,
         ...loginConfigs
       })
     } else {
-      // TODO: createNewTab
+      const { success, tab: newTab } = await createNewTab(req.body.env.value)
+      if (success) {
+        chrome.tabs.sendMessage(newTab.id, {
+          action: "login",
+          // @ts-ignore
+          user: windowUC?.user,
+          ...loginConfigs
+        })
+      }
     }
   }
 }
