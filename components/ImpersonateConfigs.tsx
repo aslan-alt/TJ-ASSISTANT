@@ -11,6 +11,7 @@ import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
 import { useImpersonateAccount } from "~hooks/useImpersonateAccount"
 import { useSearchInput } from "~hooks/useSearchInput"
+import { getChromeCurrentTab } from "~utils/chromeMethods"
 import { StoreNames } from "~utils/indexedDB"
 
 export const ImpersonateConfigs = () => {
@@ -34,9 +35,10 @@ export const ImpersonateConfigs = () => {
 
   const handleLogin = async (loginConfigs: AccountItem) => {
     // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
-    const homeRes = await sendToBackground({
-      name: "impersonate",
-      body: loginConfigs
+    const tab = await getChromeCurrentTab()
+    chrome.tabs.sendMessage(tab.id, {
+      action: "impersonate",
+      ...loginConfigs
     })
   }
   const handleCancel = () => {

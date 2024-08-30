@@ -1,13 +1,5 @@
 import axios from "axios"
 
-import {
-  roleOptions,
-  xPathForLoginWays,
-  type defaultUserConfigs
-} from "~constants"
-
-const loginButton = "/html/body/nav/nav/div[1]/div[2]/button"
-
 async function waitForElement(xpath, timeout = 3000) {
   const interval = 100
   const maxAttempts = timeout / interval
@@ -35,133 +27,6 @@ async function waitForElement(xpath, timeout = 3000) {
     }, interval)
   })
 }
-const creatLoginConfigs = (userConfigs: typeof defaultUserConfigs) => {
-  if (userConfigs.role.value === roleOptions[0].value) {
-    // CAG
-    return [
-      {
-        xpath: loginButton, // Sign in
-        event: "click"
-      },
-      {
-        xpath: xPathForLoginWays[roleOptions[0].value], // select role
-        event: "click"
-      },
-      {
-        xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
-        event: "input",
-        value: userConfigs.email
-      },
-      {
-        xpath: '//*[@id="continue"]',
-        event: "click"
-      }
-    ]
-  }
-
-  if (userConfigs.role.value === roleOptions[1].value) {
-    return [
-      {
-        xpath: loginButton, // Sign in
-        event: "click"
-      },
-      {
-        xpath: xPathForLoginWays[userConfigs.role.value], // select role
-        event: "click"
-      },
-      {
-        xpath: "/html/body/div[4]/div[2]/div[2]/div/button[5]",
-        event: "click"
-      },
-      {
-        xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
-        event: "input",
-        value: userConfigs.email
-      },
-      {
-        xpath: '//*[@id="continue"]',
-        event: "click"
-      },
-      {
-        xpath: "/html/body/div[4]/div[2]/div[2]/div/form/div/label/input",
-        event: "input",
-        value: userConfigs.password
-      },
-      {
-        xpath: '//*[@id="continue"]',
-        event: "click"
-      }
-    ]
-  }
-
-  return [
-    {
-      xpath: loginButton, // Sign in
-      event: "click"
-    },
-    {
-      xpath: xPathForLoginWays[userConfigs.role.value], // select role
-      event: "click"
-    },
-    {
-      xpath: "/html/body/div[4]/div[2]/div[2]/div/form/label/input",
-      event: "input",
-      value: userConfigs.email
-    },
-    {
-      xpath: '//*[@id="continue"]',
-      event: "click"
-    },
-    {
-      xpath: "/html/body/div[4]/div[2]/div[2]/div/form/div/label/input",
-      event: "input",
-      value: userConfigs.password
-    },
-    {
-      xpath: '//*[@id="continue"]',
-      event: "click"
-    }
-  ]
-}
-const logoutConfigs = [
-  {
-    xpath: "/html/body/nav/nav/div[1]/div[2]/a",
-    event: "click"
-  },
-  {
-    xpath: '//*[@id="agent-home"]/nav/div/footer/div[2]',
-    event: "click"
-  },
-  {
-    xpath: '//*[@id="agent-home"]/nav/div/footer/div[1]/div[3]',
-    event: "click"
-  }
-]
-
-const impersonateConfigs = []
-
-async function executeTargets(targets) {
-  for (const target of targets) {
-    const { xpath, event, value } = target
-    try {
-      const element = await waitForElement(xpath)
-
-      if (!element) return
-      if (event === "click") {
-        // @ts-ignore
-        element.click()
-      } else if (event === "input") {
-        // @ts-ignore
-        element.value = value
-        // @ts-ignore
-        element.dispatchEvent(new Event("input", { bubbles: true }))
-      }
-      await new Promise((resolve) => setTimeout(resolve, 250)) // 500ms 延迟以确保事件完成
-    } catch (error) {
-      console.error(error)
-    }
-  }
-}
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
@@ -179,14 +44,16 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     location.reload()
   }
   if (request.action === "impersonate") {
-    const element = await waitForElement(
-      '//*[@id="root"]/div/div/div[2]/div/div[1]/div[6]/button'
+    await axios.post(
+      "/impersonate/",
+      {
+        targetUserId: request.userId,
+        impersonation_tool: "a3g"
+      },
+      {
+        withCredentials: true
+      }
     )
-    if (element) {
-      // @ts-ignore
-      element.click?.()
-    } else {
-      sendResponse({ status: "没找到" })
-    }
+    location.reload()
   }
 })
