@@ -35,11 +35,6 @@ function IndexPopup() {
                           key: '1',
                           children:<ImpersonateConfigs />,
                       },
-                      {
-                          label: `Settings`,
-                          key: '2',
-                          children: <Settings />,
-                      }
                   ]}
                   onChange={setSelectedTab}
               />
