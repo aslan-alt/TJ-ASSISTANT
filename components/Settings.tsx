@@ -76,21 +76,23 @@ export const Settings = () => {
     <EditSettings />
   ) : (
     <SettingContainer>
-      <Typography.Title level={5} style={{ margin: "0" }}>
+      <Typography.Title level={3} style={{ margin: "0" }}>
         Import Accounts
       </Typography.Title>
-      <Upload.Dragger name="file" height={200} onChange={handleFile}>
+
+      <UploadDragger name="file" height={200} onChange={handleFile}>
         <p className="ant-upload-drag-icon">
           <InboxOutlined />
         </p>
         <p className="ant-upload-text">
           Click or drag file to this area to upload
         </p>
-      </Upload.Dragger>
-      <Typography.Text>
+      </UploadDragger>
+      <Text>
         If you are unsure about the table format, you can contact
         <Tag color="blue">@tg-qa-cn</Tag>
-      </Typography.Text>
+        If you only want to use a specific account without the need for bulk import, you can activate the plugin's popup to add it.
+      </Text>
     </SettingContainer>
   )
 }
@@ -100,6 +102,14 @@ const SettingContainer = styled.div`
   grid-auto-flow: row;
   grid-gap: 8px;
 `
+
+const UploadDragger = styled(Upload.Dragger)`
+    max-width: 800px;
+`;
+const Text = styled(Typography.Text)`
+    font-size: 16px;
+    max-width: 800px;
+`;
 
 
 
