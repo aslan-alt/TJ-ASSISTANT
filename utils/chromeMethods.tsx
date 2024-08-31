@@ -1,9 +1,8 @@
 export const getChromeCurrentTab = async () => {
-  const queryOptions = { active: true }
-  // `tab` will either be a `tabs.Tab` instance or `undefined`.
-  const [tab] = await chrome.tabs.query(queryOptions)
+  const [tab] = await chrome.tabs.query({ active: true,currentWindow: true })
   return tab
 }
+
 export async function waitForElement(xpath, timeout = 5000) {
   const interval = 100
   const maxAttempts = timeout / interval
@@ -33,8 +32,6 @@ export async function waitForElement(xpath, timeout = 5000) {
 }
 
 export const executeScript = async ({ tabId, func, args = [] }) => {
-  console.log('tabId--------');
-  console.log(tabId);
   return new Promise((resolve, reject) => {
     chrome.scripting.executeScript(
       {
@@ -53,38 +50,6 @@ export const executeScript = async ({ tabId, func, args = [] }) => {
   })
 }
 
-export async function findElementsAndTriger(targets) {
-  for (const target of targets) {
-    const { xpath, event, value } = target
-    try {
-      const element = await waitForElement(xpath)
-      if (event === "click") {
-        // @ts-ignore
-        element.click()
-      } else if (event === "input") {
-        console.log(value)
-        // @ts-ignore
-        element.value = value
-        // @ts-ignore
-        element.dispatchEvent(new Event("input", { bubbles: true }))
-      }
-      await new Promise((resolve) => setTimeout(resolve, 500)) // 500ms 延迟以确保事件完成
-    } catch (error) {
-      console.error(error)
-    }
-  }
-}
 
-export const onSendMessageToContent = (tabId,
-  params
-) => {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.sendMessage(
-        tabId,
-        params,
-        (result) => {
-          resolve(result)
-        }
-    )
-  })
-}
+
+

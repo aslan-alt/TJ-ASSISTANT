@@ -9,8 +9,6 @@ export const useGetLoginAccount = () => {
         mutate(newLoginAccounts)
     }
 
-
-
     return {
         loginAccounts,
         updateLoginAccount

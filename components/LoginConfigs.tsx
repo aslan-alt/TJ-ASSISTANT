@@ -17,7 +17,6 @@ import {
 } from "~constants"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
 import { useSearchInput } from "~hooks/useSearchInput"
-import { getChromeCurrentTab } from "~utils/chromeMethods"
 import { StoreNames } from "~utils/indexedDB"
 
 export const LoginConfigs = () => {
