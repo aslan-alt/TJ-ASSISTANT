@@ -6,7 +6,6 @@ import {Tabs} from "antd"
 
 import { ImpersonateConfigs } from "~components/ImpersonateConfigs"
 import { LoginConfigs } from "~components/LoginConfigs"
-import {Settings} from "~components/Settings";
 import {useStorage} from "@plasmohq/storage/dist/hook";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 const queryClient = new QueryClient()
@@ -45,7 +44,7 @@ function IndexPopup() {
 }
 
 const Container = styled.div`
-  width: 500px;
+  width: 548px;
     height: 548px;
   padding: 24px;
   border-radius: 8px;

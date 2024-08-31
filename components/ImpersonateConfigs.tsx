@@ -72,7 +72,7 @@ export const ImpersonateConfigs = () => {
                   title={`${loginAccount.tag || loginAccount.email}`}>
                   <UserItem>
                     <UserName>
-                      {loginAccount.tag || loginAccount.email}
+                      {loginAccount.email || loginAccount.tag }
                     </UserName>
 
                     <Operations>
@@ -223,7 +223,7 @@ const LoginAccounts = styled.div`
 
 const UserItem = styled.div`
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 120px 1fr;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
@@ -247,7 +247,7 @@ const UserName = styled.span`
   padding-top: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 80px; /* 根据需要调整宽度 */
+  width: 120px; /* 根据需要调整宽度 */
 `
 
 const Operations = styled.div`
