@@ -10,6 +10,7 @@ import { useStorage } from "@plasmohq/storage/dist/hook"
 
 import { ImpersonateConfigs } from "~components/ImpersonateConfigs"
 import { LoginConfigs } from "~components/LoginConfigs"
+import { Opty } from "~components/Opty"
 
 const queryClient = new QueryClient()
 
@@ -33,6 +34,11 @@ function IndexPopup() {
               label: `Impersonate`,
               key: "1",
               children: <ImpersonateConfigs />
+            },
+            {
+              label: `Opty`,
+              key: "2",
+              children: <Opty />
             }
           ]}
           onChange={setSelectedTab}

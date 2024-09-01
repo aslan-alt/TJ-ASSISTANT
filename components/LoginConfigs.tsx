@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons"
-import { Button, Modal, Select, Tag, Tooltip } from "antd"
+import { Button, Modal, Select } from "antd"
 import { useState } from "react"
 import styled from "styled-components"
 
@@ -8,14 +8,13 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import { AccountDetailModal } from "~components/AccountDetailModal"
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
+import { ConfigItem } from "~components/ConfigItem"
 import { DeleteModal } from "~components/DeleteModal"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
 import { useFilterInput } from "~hooks/useFilterInput"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
-
-const NAME_WIDTH = 246
 
 export const LoginConfigs = () => {
   // All accounts
@@ -75,60 +74,54 @@ export const LoginConfigs = () => {
           <LoginAccounts>
             {filteredAccounts.map((currentAccount) => {
               return (
-                <Tooltip
-                  key={currentAccount.email}
-                  placement="topLeft"
-                  title={`${currentAccount.tag || currentAccount.email}`}>
-                  <UserItem>
-                    <UserName
-                      onClick={() => {
-                        setIsDetailModalOpen(true)
-                        setActiveAccount(currentAccount)
-                      }}>
-                      {currentAccount.email}
-                    </UserName>
-
-                    <Operations>
-                      <Select
-                        placeholder="Select Env"
-                        value={currentAccount?.env?.value}
-                        onChange={(_, env) => {
-                          updateLoginAccount(
-                            loginAccounts?.map((item) => {
-                              if (item.email === currentAccount.email) {
-                                return {
-                                  ...item,
-                                  env: env as (typeof envOptions)[0]
-                                }
+                <ConfigItem
+                  onLabelClick={() => {
+                    setIsDetailModalOpen(true)
+                    setActiveAccount(currentAccount)
+                  }}
+                  label={currentAccount.email}
+                  title={`${currentAccount.tag || currentAccount.email}`}
+                  titleWidth="246px">
+                  <Operations>
+                    <Select
+                      placeholder="Select Env"
+                      value={currentAccount?.env?.value}
+                      onChange={(_, env) => {
+                        updateLoginAccount(
+                          loginAccounts?.map((item) => {
+                            if (item.email === currentAccount.email) {
+                              return {
+                                ...item,
+                                env: env as (typeof envOptions)[0]
                               }
-                              return item
-                            })
-                          )
-                        }}
-                        options={envOptions}
-                      />
+                            }
+                            return item
+                          })
+                        )
+                      }}
+                      options={envOptions}
+                    />
 
-                      <Button
-                        type="primary"
-                        onClick={() => {
-                          handleLogin(currentAccount)
-                        }}>
-                        Login
-                      </Button>
-                      <Button
-                        type="primary"
-                        shape="circle"
-                        icon={<DeleteOutlined />}
-                        size="middle"
-                        danger
-                        onClick={() => {
-                          setRemoveSelectedItem(currentAccount)
-                          setIsDeleteModalOpen(true)
-                        }}
-                      />
-                    </Operations>
-                  </UserItem>
-                </Tooltip>
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        handleLogin(currentAccount)
+                      }}>
+                      Login
+                    </Button>
+                    <Button
+                      type="primary"
+                      shape="circle"
+                      icon={<DeleteOutlined />}
+                      size="middle"
+                      danger
+                      onClick={() => {
+                        setRemoveSelectedItem(currentAccount)
+                        setIsDeleteModalOpen(true)
+                      }}
+                    />
+                  </Operations>
+                </ConfigItem>
               )
             })}
             {error ? <ErrorText>{error}</ErrorText> : null}
@@ -197,30 +190,6 @@ const LoginAccounts = styled.div`
   grid-gap: 8px;
   height: calc(580px - 190px);
   overflow-y: auto;
-`
-
-const UserItem = styled.div`
-  display: grid;
-  grid-template-columns: ${NAME_WIDTH}px 1fr;
-  padding: 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: 1px solid #00000010;
-  align-content: center;
-  &:hover {
-    background: #00000015;
-  }
-`
-
-const UserName = styled.span`
-  display: block;
-  align-items: center;
-  font-size: 16px;
-  overflow: hidden;
-  padding-top: 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: ${NAME_WIDTH}px;
 `
 
 const ErrorText = styled.p`
