@@ -8,13 +8,7 @@ const filterTypes = [
   { value: "notes", label: "Filter by notes" }
 ]
 
-export const useFilterInput = ({
-  disabled,
-  storageKey
-}: {
-  disabled: boolean
-  storageKey: string
-}) => {
+export const useFilterInput = ({ disabled }: { disabled: boolean }) => {
   const [filterValue, setFilterValue] = useState<string>("")
   const [filterType, setFilterType] = useState(filterTypes[0])
 
