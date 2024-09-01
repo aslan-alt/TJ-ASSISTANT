@@ -15,6 +15,8 @@ import { useFilterInput } from "~hooks/useFilterInput"
 import { useImpersonateAccount } from "~hooks/useImpersonateAccount"
 import { StoreNames } from "~utils/indexedDB"
 
+const NAME_WIDTH = 200
+
 export const ImpersonateConfigs = () => {
   const [newUserConfigs, setNewUserConfigs] = useStorage(
     "impersonateConfigs",
@@ -234,8 +236,8 @@ const Accounts = styled.div`
 
 const UserItem = styled.div`
   display: grid;
-  grid-template-columns: 120px 1fr;
-  padding: 8px 16px;
+  grid-template-columns: ${NAME_WIDTH}px 1fr;
+  padding: 8px;
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #00000010;
@@ -258,12 +260,12 @@ const UserName = styled.span`
   padding-top: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 120px; /* 根据需要调整宽度 */
+  width: ${NAME_WIDTH}px;
 `
 
 const Operations = styled.div`
   display: grid;
-  grid-template-columns: 145px 120px auto;
+  grid-template-columns: 100px 120px auto;
   grid-gap: 8px;
   justify-content: flex-end;
 `

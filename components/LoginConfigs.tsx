@@ -11,14 +11,11 @@ import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { DeleteModal } from "~components/DeleteModal"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithButton } from "~components/TitleWithButton"
-import {
-  defaultUserConfigs,
-  envOptions,
-  roleOptions,
-  type AccountItem
-} from "~constants"
+import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
 import { useFilterInput } from "~hooks/useFilterInput"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
+
+const NAME_WIDTH = 246
 
 export const LoginConfigs = () => {
   // All accounts
@@ -98,33 +95,17 @@ export const LoginConfigs = () => {
                         onChange={(_, env) => {
                           updateLoginAccount(
                             loginAccounts?.map((item) => {
-                              return item.email === currentAccount.email
-                                ? {
-                                    ...item,
-                                    env: env as (typeof envOptions)[0]
-                                  }
-                                : item
+                              if (item.email === currentAccount.email) {
+                                return {
+                                  ...item,
+                                  env: env as (typeof envOptions)[0]
+                                }
+                              }
+                              return item
                             })
                           )
                         }}
                         options={envOptions}
-                      />
-                      <Select
-                        placeholder="Select Role"
-                        value={currentAccount?.role?.value}
-                        onChange={(_, role) => {
-                          updateLoginAccount(
-                            loginAccounts.map((item) => {
-                              return item.email === currentAccount.email
-                                ? {
-                                    ...item,
-                                    role: role as typeof defaultUserConfigs.role
-                                  }
-                                : item
-                            })
-                          )
-                        }}
-                        options={roleOptions}
                       />
 
                       <Button
@@ -220,8 +201,8 @@ const LoginAccounts = styled.div`
 
 const UserItem = styled.div`
   display: grid;
-  grid-template-columns: 80px 1fr;
-  padding: 8px 16px;
+  grid-template-columns: ${NAME_WIDTH}px 1fr;
+  padding: 8px;
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #00000010;
@@ -239,7 +220,7 @@ const UserName = styled.span`
   padding-top: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 80px; /* 根据需要调整宽度 */
+  width: ${NAME_WIDTH}px;
 `
 
 const ErrorText = styled.p`
@@ -249,7 +230,7 @@ const ErrorText = styled.p`
 
 const Operations = styled.div`
   display: grid;
-  grid-template-columns: 100px 145px 60px auto;
+  grid-template-columns: 100px 60px auto;
   grid-gap: 8px;
   justify-content: flex-end;
 `
