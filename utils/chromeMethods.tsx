@@ -1,5 +1,5 @@
 export const getChromeCurrentTab = async () => {
-  const [tab] = await chrome.tabs.query({ active: true,currentWindow: true })
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
   return tab
 }
 
@@ -49,7 +49,3 @@ export const executeScript = async ({ tabId, func, args = [] }) => {
     )
   })
 }
-
-
-
-

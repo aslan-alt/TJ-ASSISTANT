@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons"
-import { Button, Input, Modal, Select, Space, Tooltip } from "antd"
+import { Button, Modal, Select, Tooltip } from "antd"
 import { useState } from "react"
 import styled from "styled-components"
 
@@ -39,7 +39,6 @@ export const LoginConfigs = () => {
   const [error, setError] = useState<string | null>(null)
 
   const handleLogin = async (loginConfigs: AccountItem) => {
-    // TODO: No need refresh the page if isSameOrigin(currentTab.url, loginConfigs.env.value)
     await sendToBackground({
       name: "login",
       body: loginConfigs

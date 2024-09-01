@@ -1,13 +1,10 @@
-export const isSameOrigin = (url1: string, url2: string) => {
-  try {
-    const parsedUrl1 = new URL(url1)
-    const parsedUrl2 = new URL(url2)
-    console.log("parsedUrl1------")
-    console.log(parsedUrl1)
-    console.log(parsedUrl2)
-    return parsedUrl1.origin === parsedUrl2.origin
-  } catch (error) {
-    console.error("Invalid URL:", error)
-    return false
-  }
+export function generateLoginUrl({ baseUrl, email }) {
+  const url = new URL(`${baseUrl}/auth/idp/login/auth0`)
+
+  url.searchParams.append("auth_host", baseUrl)
+  url.searchParams.append("connection", "CompassOkta")
+  url.searchParams.append("login_hint", email)
+  url.searchParams.append("redirect_uri", "/app/home")
+
+  return url.toString()
 }

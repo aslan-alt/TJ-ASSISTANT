@@ -1,5 +1,3 @@
-import axios from "axios"
-
 import {
   impersonateRequest,
   loginRequest,
@@ -10,6 +8,7 @@ import {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === "login") {
     const isLogin = !!request?.user?.email
+
     if (isLogin) {
       await logoutRequest()
     }
