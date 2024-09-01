@@ -19,7 +19,7 @@ export const AddNewLoginAccountForm = ({
         value={newUserConfigs.email}
       />
       <Input
-        type="text"
+        type="password"
         placeholder="Please enter password"
         onChange={(e) =>
           setNewUserConfigs({
