@@ -75,6 +75,7 @@ export const LoginConfigs = () => {
             {filteredAccounts.map((currentAccount) => {
               return (
                 <ConfigItem
+                  key={currentAccount.email}
                   onLabelClick={() => {
                     setIsDetailModalOpen(true)
                     setActiveAccount(currentAccount)

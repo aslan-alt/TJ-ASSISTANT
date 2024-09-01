@@ -7,6 +7,7 @@ import { sendToBackground } from "@plasmohq/messaging"
 import { useStorage } from "@plasmohq/storage/dist/hook"
 
 import { AccountDetailModal } from "~components/AccountDetailModal"
+import { ConfigItem } from "~components/ConfigItem"
 import { DeleteModal } from "~components/DeleteModal"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithButton } from "~components/TitleWithButton"
@@ -71,59 +72,54 @@ export const ImpersonateConfigs = () => {
           <Accounts>
             {filteredAccounts.map((currentAccount) => {
               return (
-                <Tooltip
-                  key={currentAccount.userId}
-                  placement="topLeft"
-                  title={`${currentAccount.tag || currentAccount.email}`}>
-                  <UserItem>
-                    <UserName
+                <ConfigItem
+                  key={currentAccount.email}
+                  label={currentAccount.email || currentAccount.tag}
+                  titleWidth="200px"
+                  title={`${currentAccount.tag || currentAccount.email}`}
+                  onLabelClick={() => {
+                    setIsDetailModalOpen(true)
+                    setActiveAccount(currentAccount)
+                  }}>
+                  <Operations>
+                    <Select
+                      placeholder="Select Env"
+                      value={currentAccount.env.value}
+                      onChange={(_, env) => {
+                        updateImpersonateAccounts(
+                          impersonateAccounts.map((item) => {
+                            return item.userId === currentAccount.userId
+                              ? {
+                                  ...item,
+                                  env: env as typeof defaultUserConfigs.env
+                                }
+                              : item
+                          })
+                        )
+                      }}
+                      options={envOptions}
+                    />
+
+                    <Button
+                      type="primary"
                       onClick={() => {
-                        setIsDetailModalOpen(true)
-                        setActiveAccount(currentAccount)
+                        handleImpersonate(currentAccount)
                       }}>
-                      {currentAccount.email || currentAccount.tag}
-                    </UserName>
-
-                    <Operations>
-                      <Select
-                        placeholder="Select Env"
-                        value={currentAccount.env.value}
-                        onChange={(_, env) => {
-                          updateImpersonateAccounts(
-                            impersonateAccounts.map((item) => {
-                              return item.userId === currentAccount.userId
-                                ? {
-                                    ...item,
-                                    env: env as typeof defaultUserConfigs.env
-                                  }
-                                : item
-                            })
-                          )
-                        }}
-                        options={envOptions}
-                      />
-
-                      <Button
-                        type="primary"
-                        onClick={() => {
-                          handleImpersonate(currentAccount)
-                        }}>
-                        Impersonate
-                      </Button>
-                      <Button
-                        type="primary"
-                        shape="circle"
-                        icon={<DeleteOutlined />}
-                        size="middle"
-                        danger
-                        onClick={() => {
-                          setRemoveSelectedItem(currentAccount)
-                          setIsDeleteModalOpen(true)
-                        }}
-                      />
-                    </Operations>
-                  </UserItem>
-                </Tooltip>
+                      Impersonate
+                    </Button>
+                    <Button
+                      type="primary"
+                      shape="circle"
+                      icon={<DeleteOutlined />}
+                      size="middle"
+                      danger
+                      onClick={() => {
+                        setRemoveSelectedItem(currentAccount)
+                        setIsDeleteModalOpen(true)
+                      }}
+                    />
+                  </Operations>
+                </ConfigItem>
               )
             })}
             {error ? <ErrorText>{error}</ErrorText> : null}
