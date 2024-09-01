@@ -15,8 +15,8 @@ import {
   roleOptions,
   type AccountItem
 } from "~constants"
+import { useFilterInput } from "~hooks/useFilterInput"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
-import { useSearchInput } from "~hooks/useSearchInput"
 import { StoreNames } from "~utils/indexedDB"
 
 export const LoginConfigs = () => {
@@ -32,7 +32,7 @@ export const LoginConfigs = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  const { searchType, searchValue, searchInput } = useSearchInput({
+  const { filterType, filterValue, filterInput } = useFilterInput({
     disabled: (loginAccounts?.length ?? 0) < 1,
     storageKey: StoreNames.Login
   })
@@ -50,16 +50,16 @@ export const LoginConfigs = () => {
 
   const filteredAccounts =
     loginAccounts?.filter((account) =>
-      account?.[searchType?.value ?? ""]
+      account?.[filterType?.value ?? ""]
         ?.toLowerCase()
-        ?.includes?.(searchValue.toLowerCase())
+        ?.includes?.(filterValue.toLowerCase())
     ) ?? []
 
   return (
     <Container>
       <TitleWithButton
         buttonText="Add account"
-        title="Users list for login"
+        title="Login Accounts"
         onClick={() => {
           setIsAddModalOpen(true)
         }}
@@ -67,7 +67,7 @@ export const LoginConfigs = () => {
 
       {loginAccounts?.length ? (
         <>
-          {searchInput}
+          {filterInput}
           <LoginAccounts>
             {filteredAccounts.map((currentAccount) => {
               return (
@@ -197,7 +197,7 @@ const LoginAccounts = styled.div`
   display: grid;
   grid-template-rows: repeat(auto-fill, minmax(40px, 1fr));
   grid-gap: 8px;
-  height: calc(548px - 140px);
+  height: calc(580px - 190px);
   overflow-y: auto;
 `
 
@@ -212,9 +212,6 @@ const UserItem = styled.div`
   &:hover {
     background: #00000015;
   }
-`
-const SearchSelect = styled(Select)`
-  height: 100%;
 `
 
 const UserName = styled.span`

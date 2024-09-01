@@ -9,9 +9,8 @@ import { useStorage } from "@plasmohq/storage/dist/hook"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
+import { useFilterInput } from "~hooks/useFilterInput"
 import { useImpersonateAccount } from "~hooks/useImpersonateAccount"
-import { useSearchInput } from "~hooks/useSearchInput"
-import { getChromeCurrentTab } from "~utils/chromeMethods"
 import { StoreNames } from "~utils/indexedDB"
 
 export const ImpersonateConfigs = () => {
@@ -24,7 +23,7 @@ export const ImpersonateConfigs = () => {
 
   const { impersonateAccounts, updateImpersonateAccounts } =
     useImpersonateAccount()
-  const { searchType, searchValue, searchInput } = useSearchInput({
+  const { filterType, filterValue, filterInput } = useFilterInput({
     disabled: (impersonateAccounts?.length ?? 0) < 1,
     storageKey: StoreNames.Impersonate
   })
@@ -45,16 +44,16 @@ export const ImpersonateConfigs = () => {
 
   const filteredAccounts =
     impersonateAccounts?.filter((account) =>
-      account?.[searchType?.value ?? ""]
+      account?.[filterType?.value ?? ""]
         ?.toLowerCase()
-        ?.includes?.(searchValue.toLowerCase())
+        ?.includes?.(filterValue.toLowerCase())
     ) ?? []
 
   return (
     <Container>
       <TitleWithButton
         buttonText="Add account"
-        title="Impersonate"
+        title="Impersonate Accounts"
         onClick={() => {
           setIsAddModalOpen(true)
         }}
@@ -62,8 +61,8 @@ export const ImpersonateConfigs = () => {
 
       {impersonateAccounts?.length ? (
         <>
-          {searchInput}
-          <LoginAccounts>
+          {filterInput}
+          <Accounts>
             {filteredAccounts.map((loginAccount) => {
               return (
                 <Tooltip
@@ -118,7 +117,7 @@ export const ImpersonateConfigs = () => {
               )
             })}
             {error ? <ErrorText>{error}</ErrorText> : null}
-          </LoginAccounts>
+          </Accounts>
         </>
       ) : (
         <EmptyContent description="No data, please click the button to add an account." />
@@ -213,11 +212,11 @@ const Form = styled.div`
   gap: 8px;
 `
 
-const LoginAccounts = styled.div`
+const Accounts = styled.div`
   display: grid;
   grid-template-rows: repeat(auto-fill, minmax(40px, 1fr));
   grid-gap: 8px;
-  height: calc(548px - 140px);
+  height: calc(580px - 190px);
   overflow-y: auto;
 `
 

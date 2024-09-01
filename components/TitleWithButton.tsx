@@ -45,7 +45,6 @@ const Container = styled.div`
   grid-auto-flow: column;
   justify-content: space-between;
   align-items: center;
-  height: 50px;
 `
 
 const Title = styled(Typography.Title)`
