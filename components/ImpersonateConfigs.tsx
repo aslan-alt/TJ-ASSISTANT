@@ -72,7 +72,7 @@ export const ImpersonateConfigs = () => {
                   title={`${loginAccount.tag || loginAccount.email}`}>
                   <UserItem>
                     <UserName>
-                      {loginAccount.email || loginAccount.tag }
+                      {loginAccount.email || loginAccount.tag}
                     </UserName>
 
                     <Operations>
@@ -170,7 +170,7 @@ export const ImpersonateConfigs = () => {
                 email: e.target.value
               })
             }
-            value={newUserConfigs.userId}
+            value={newUserConfigs.email}
           />
           <Input
             type="text"
