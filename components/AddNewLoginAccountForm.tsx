@@ -1,11 +1,9 @@
-import { Button, Input, Select } from "antd"
+import { Button, Input } from "antd"
 import styled from "styled-components"
-
-import { envOptions } from "~constants"
 
 export const AddNewLoginAccountForm = ({
   setNewUserConfigs,
-  newUserConfigs,
+  newUserConfigs
 }) => {
   return (
     <Container>
