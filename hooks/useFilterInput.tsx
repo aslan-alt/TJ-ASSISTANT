@@ -14,6 +14,7 @@ export const useFilterInput = ({ disabled }: { disabled: boolean }) => {
 
   const filterInput = (
     <Space.Compact>
+      {/* TODO: Add Badge*/}
       <FilterSelect
         value={filterType.value}
         options={filterTypes}

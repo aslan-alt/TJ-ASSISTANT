@@ -6,6 +6,7 @@ import styled from "styled-components"
 import { sendToBackground } from "@plasmohq/messaging"
 import { useStorage } from "@plasmohq/storage/hook"
 
+import { AccountDetailModal } from "~components/AccountDetailModal"
 import { AddNewLoginAccountForm } from "~components/AddNewLoginAccountForm"
 import { DeleteModal } from "~components/DeleteModal"
 import { EmptyContent } from "~components/EmptyContent"
@@ -18,21 +19,27 @@ import {
 } from "~constants"
 import { useFilterInput } from "~hooks/useFilterInput"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
-import { StoreNames } from "~utils/indexedDB"
 
 export const LoginConfigs = () => {
+  // All accounts
+  const { loginAccounts, updateLoginAccount } = useGetLoginAccount()
+
+  // Add account
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [newAccountItem, setNewUserConfigs] = useStorage(
     "addNewUserConfig",
     defaultUserConfigs
   )
 
-  const { loginAccounts, updateLoginAccount } = useGetLoginAccount()
-
+  // Delete account
   const [removeSelectedItem, setRemoveSelectedItem] = useState(null)
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
+  // details account
+  const [activeAccount, setActiveAccount] = useState(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+
+  // Filter accounts
   const { filterType, filterValue, filterInput } = useFilterInput({
     disabled: (loginAccounts?.length ?? 0) < 1
   })
@@ -76,7 +83,13 @@ export const LoginConfigs = () => {
                   placement="topLeft"
                   title={`${currentAccount.tag || currentAccount.email}`}>
                   <UserItem>
-                    <UserName>{currentAccount.email}</UserName>
+                    <UserName
+                      onClick={() => {
+                        setIsDetailModalOpen(true)
+                        setActiveAccount(currentAccount)
+                      }}>
+                      {currentAccount.email}
+                    </UserName>
 
                     <Operations>
                       <Select
@@ -181,6 +194,13 @@ export const LoginConfigs = () => {
           newUserConfigs={newAccountItem}
         />
       </Modal>
+      <AccountDetailModal
+        account={activeAccount}
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false)
+        }}
+      />
     </Container>
   )
 }

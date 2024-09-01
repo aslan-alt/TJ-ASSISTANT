@@ -6,6 +6,7 @@ import styled from "styled-components"
 import { sendToBackground } from "@plasmohq/messaging"
 import { useStorage } from "@plasmohq/storage/dist/hook"
 
+import { AccountDetailModal } from "~components/AccountDetailModal"
 import { DeleteModal } from "~components/DeleteModal"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithButton } from "~components/TitleWithButton"
@@ -29,6 +30,9 @@ export const ImpersonateConfigs = () => {
   })
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+
+  const [activeAccount, setActiveAccount] = useState(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   const [error, setError] = useState<string | null>(null)
 
@@ -63,25 +67,29 @@ export const ImpersonateConfigs = () => {
         <>
           {filterInput}
           <Accounts>
-            {filteredAccounts.map((loginAccount) => {
+            {filteredAccounts.map((currentAccount) => {
               return (
                 <Tooltip
-                  key={loginAccount.userId}
+                  key={currentAccount.userId}
                   placement="topLeft"
-                  title={`${loginAccount.tag || loginAccount.email}`}>
+                  title={`${currentAccount.tag || currentAccount.email}`}>
                   <UserItem>
-                    <UserName>
-                      {loginAccount.email || loginAccount.tag}
+                    <UserName
+                      onClick={() => {
+                        setIsDetailModalOpen(true)
+                        setActiveAccount(currentAccount)
+                      }}>
+                      {currentAccount.email || currentAccount.tag}
                     </UserName>
 
                     <Operations>
                       <Select
                         placeholder="Select Env"
-                        value={loginAccount.env.value}
+                        value={currentAccount.env.value}
                         onChange={(_, env) => {
                           updateImpersonateAccounts(
                             impersonateAccounts.map((item) => {
-                              return item.userId === loginAccount.userId
+                              return item.userId === currentAccount.userId
                                 ? {
                                     ...item,
                                     env: env as typeof defaultUserConfigs.env
@@ -96,7 +104,7 @@ export const ImpersonateConfigs = () => {
                       <Button
                         type="primary"
                         onClick={() => {
-                          handleImpersonate(loginAccount)
+                          handleImpersonate(currentAccount)
                         }}>
                         Impersonate
                       </Button>
@@ -107,7 +115,7 @@ export const ImpersonateConfigs = () => {
                         size="middle"
                         danger
                         onClick={() => {
-                          setRemoveSelectedItem(loginAccount)
+                          setRemoveSelectedItem(currentAccount)
                           setIsDeleteModalOpen(true)
                         }}
                       />
@@ -193,6 +201,13 @@ export const ImpersonateConfigs = () => {
           />
         </Form>
       </Modal>
+      <AccountDetailModal
+        account={activeAccount}
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false)
+        }}
+      />
     </Container>
   )
 }
