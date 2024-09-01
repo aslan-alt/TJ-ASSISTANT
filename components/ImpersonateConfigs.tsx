@@ -1,11 +1,12 @@
 import { DeleteOutlined } from "@ant-design/icons"
-import { Button, Input, Modal, Select, Tooltip } from "antd"
+import { Button, Input, Modal, Select, Tag, Tooltip } from "antd"
 import { useState } from "react"
 import styled from "styled-components"
 
 import { sendToBackground } from "@plasmohq/messaging"
 import { useStorage } from "@plasmohq/storage/dist/hook"
 
+import { DeleteModal } from "~components/DeleteModal"
 import { EmptyContent } from "~components/EmptyContent"
 import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
@@ -121,9 +122,9 @@ export const ImpersonateConfigs = () => {
       ) : (
         <EmptyContent description="No data, please click the button to add an account." />
       )}
-      <Modal
-        title="Delete Account"
-        open={isDeleteModalOpen}
+      <DeleteModal
+        email={removeSelectedItem?.email}
+        isDeleteModalOpen={isDeleteModalOpen}
         onOk={() => {
           if (!removeSelectedItem) return
           const filteredConfigs = impersonateAccounts.filter(
@@ -134,11 +135,8 @@ export const ImpersonateConfigs = () => {
           setIsDeleteModalOpen(false)
           setRemoveSelectedItem(null)
         }}
-        onCancel={handleCancel}>
-        Are you sure you want to delete your account? This action cannot be
-        undone. All your data will be permanently removed. Do you wish to
-        proceed?
-      </Modal>
+        handleCancel={handleCancel}
+      />
       <Modal
         title="Add a new account"
         open={isAddModalOpen}
