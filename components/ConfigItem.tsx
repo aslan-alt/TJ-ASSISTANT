@@ -1,4 +1,5 @@
 import { Tooltip } from "antd"
+import type { ReactNode } from "react"
 import styled from "styled-components"
 
 export const ConfigItem = ({
@@ -8,6 +9,12 @@ export const ConfigItem = ({
   children,
   titleWidth,
   ...rest
+}: {
+  title: string
+  onLabelClick: () => void
+  label: ReactNode
+  children?: ReactNode
+  titleWidth?: string
 }) => {
   return (
     <Tooltip placement="topLeft" title={title}>
@@ -23,14 +30,15 @@ export const ConfigItem = ({
 
 const Container = styled.div<{ $titleWidth: string }>`
   display: grid;
-  grid-template-columns: ${({ $titleWidth }) => {
-    return `${$titleWidth} 1fr `
+  ${({ $titleWidth }) => {
+    return `grid-template-columns: ${$titleWidth ? `${$titleWidth} 1fr` : ""}`
   }};
   padding: 8px;
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #00000010;
   align-content: center;
+  align-items: center;
   &:hover {
     background: #00000015;
   }
@@ -41,10 +49,9 @@ const Label = styled.span<{ $titleWidth: string }>`
   align-items: center;
   font-size: 16px;
   overflow: hidden;
-  padding-top: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: ${({ $titleWidth }) => {
-    return `${$titleWidth}`
+  ${({ $titleWidth }) => {
+    return `width: ${$titleWidth ? $titleWidth : ""}`
   }};
 `
