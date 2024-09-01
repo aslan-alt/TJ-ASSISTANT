@@ -33,8 +33,7 @@ export const LoginConfigs = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   const { filterType, filterValue, filterInput } = useFilterInput({
-    disabled: (loginAccounts?.length ?? 0) < 1,
-    storageKey: StoreNames.Login
+    disabled: (loginAccounts?.length ?? 0) < 1
   })
   const [error, setError] = useState<string | null>(null)
 

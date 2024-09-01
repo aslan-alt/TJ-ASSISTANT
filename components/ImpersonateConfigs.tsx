@@ -24,8 +24,7 @@ export const ImpersonateConfigs = () => {
   const { impersonateAccounts, updateImpersonateAccounts } =
     useImpersonateAccount()
   const { filterType, filterValue, filterInput } = useFilterInput({
-    disabled: (impersonateAccounts?.length ?? 0) < 1,
-    storageKey: StoreNames.Impersonate
+    disabled: (impersonateAccounts?.length ?? 0) < 1
   })
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
