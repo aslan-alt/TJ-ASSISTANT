@@ -16,7 +16,8 @@ export const envOptions = [
   { value: "https://beta.compass.com", label: "Beta" },
   { value: "https://staging.compass.com", label: "Staging" },
   { value: "https://gamma.compass.com", label: "Gamma" },
-  { value: "https://dev.local.compass.com:5443/", label: "Dev" }
+  { value: "https://dev.local.compass.com:5443/", label: "Dev" },
+  { value: "placeholder", label: "DemoBox" }
 ]
 export const roleOptions = [
   { value: "CAG", label: "Compass Agent" },

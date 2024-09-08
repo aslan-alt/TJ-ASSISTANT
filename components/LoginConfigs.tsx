@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons"
-import { Button, Modal, Select } from "antd"
+import { Button, Input, Modal, Select } from "antd"
 import { useState } from "react"
 import styled from "styled-components"
 
@@ -15,6 +15,7 @@ import { TitleWithButton } from "~components/TitleWithButton"
 import { defaultUserConfigs, envOptions, type AccountItem } from "~constants"
 import { useFilterInput } from "~hooks/useFilterInput"
 import { useGetLoginAccount } from "~hooks/useGetLoginAccount"
+import { getChromeCurrentTab } from "~utils/chromeMethods"
 
 export const LoginConfigs = () => {
   // All accounts
@@ -41,12 +42,16 @@ export const LoginConfigs = () => {
   })
   const [error, setError] = useState<string | null>(null)
 
+  const [selectedConfig, setSelectedConfig] = useState<AccountItem | null>(null)
+  const [demoBoxUrl, setDemoBoxUrl] = useState<string | null>(null)
+
   const handleLogin = async (loginConfigs: AccountItem) => {
     await sendToBackground({
       name: "login",
       body: loginConfigs
     })
   }
+
   const handleCancel = () => {
     setIsDeleteModalOpen(false)
   }
@@ -105,8 +110,22 @@ export const LoginConfigs = () => {
 
                     <Button
                       type="primary"
-                      onClick={() => {
-                        handleLogin(currentAccount)
+                      onClick={async () => {
+                        if (currentAccount.env.value === envOptions[4].value) {
+                          const tab = await getChromeCurrentTab()
+                          if (
+                            tab?.url?.startsWith("https://autodeploy-hydra-")
+                          ) {
+                            handleLogin({
+                              ...currentAccount,
+                              env: { ...envOptions[4], value: tab?.url }
+                            })
+                          } else {
+                            setSelectedConfig(currentAccount)
+                          }
+                        } else {
+                          handleLogin(currentAccount)
+                        }
                       }}>
                       Login
                     </Button>
@@ -145,6 +164,31 @@ export const LoginConfigs = () => {
         }}
         handleCancel={handleCancel}
       />
+      <Modal
+        title="Login DemoBox"
+        open={selectedConfig !== null}
+        okText="Login"
+        onOk={() => {
+          if (demoBoxUrl.length) {
+            handleLogin({
+              ...selectedConfig,
+              env: { ...envOptions[4], value: demoBoxUrl }
+            })
+          }
+          setSelectedConfig(null)
+        }}
+        onCancel={() => {
+          setSelectedConfig(null)
+        }}>
+        It appears that you are not on the Demox page. Please enter the link to
+        Demox or navigate to the Demox page and try logging in again
+        <Input
+          value={demoBoxUrl}
+          onChange={(e) => {
+            setDemoBoxUrl(e.target.value)
+          }}
+        />
+      </Modal>
       <Modal
         title="Add a new account"
         open={isAddModalOpen}

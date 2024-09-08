@@ -21,7 +21,7 @@ const handler: PlasmoMessaging.PortHandler = async (req, res) => {
   }
 
   // open a new tab and then log in if user open the plug-in on an empty page
-  if (!tab.url) {
+  if (!tab?.url) {
     const { success, tab: newTab } = await createNewTab(req.body.env.value)
     if (success) {
       chrome.tabs.sendMessage(newTab.id, {
