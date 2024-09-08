@@ -169,16 +169,23 @@ export const LoginConfigs = () => {
         open={selectedConfig !== null}
         okText="Login"
         onOk={() => {
-          if (demoBoxUrl.length) {
+          if (demoBoxUrl.length > 10) {
             handleLogin({
               ...selectedConfig,
-              env: { ...envOptions[4], value: demoBoxUrl }
+              env: {
+                ...envOptions[4],
+                value: demoBoxUrl.startsWith("https://autodeploy-hydra-")
+                  ? demoBoxUrl
+                  : `https://${demoBoxUrl}`
+              }
             })
           }
           setSelectedConfig(null)
+          setDemoBoxUrl("")
         }}
         onCancel={() => {
           setSelectedConfig(null)
+          setDemoBoxUrl("")
         }}>
         It appears that you are not on the Demox page. Please enter the link to
         Demox or navigate to the Demox page and try logging in again
