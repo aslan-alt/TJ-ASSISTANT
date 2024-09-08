@@ -86,6 +86,7 @@ export const LoginConfigs = () => {
                   <Operations>
                     <Select
                       placeholder="Select Env"
+                      options={envOptions}
                       value={currentAccount?.env?.value}
                       onChange={(_, env) => {
                         updateLoginAccount(
@@ -100,7 +101,6 @@ export const LoginConfigs = () => {
                           })
                         )
                       }}
-                      options={envOptions}
                     />
 
                     <Button
